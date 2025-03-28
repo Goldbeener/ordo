@@ -9,6 +9,8 @@ import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
 import Placeholder from '@tiptap/extension-placeholder';
 
+const emit = defineEmits(['update']);
+
 const editor = useEditor({
   content: ``,
   extensions: [
@@ -19,6 +21,15 @@ const editor = useEditor({
       placeholder: 'Write something …',
     }),
   ],
+  editorProps: {
+    attributes: {
+      class:
+        'prose prose-sm sm:prose-base lg:prose-lg xl:prose-2xl mb-5 focus:outline-none',
+    },
+  },
+  onUpdate() {
+    emit('update', editor.value.getHTML());
+  },
 });
 </script>
 

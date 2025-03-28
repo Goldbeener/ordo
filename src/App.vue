@@ -1,11 +1,15 @@
 <template>
   <div class="w-screen h-screen">
     <header class="bg-white px-3 h-[56px] rounded-md">
-      <TopBar />
+      <TopBar @create-note="handleCreateNote" />
     </header>
-    <main class="containers flex grow mt-3">
-      <div class="w-full py-[32px] px-[16px] rounded-lg overflow-hidden">
-        <Card />
+    <main class="containers flex flex-col grow mt-3">
+      <div
+        class="w-full py-[32px] px-[16px] pb-0 overflow-hidden"
+        v-for="note in noteList"
+        :key="note.id"
+      >
+        <Card :note="note" />
       </div>
     </main>
   </div>
@@ -16,10 +20,13 @@ import { invoke } from '@tauri-apps/api/core';
 import Card from './components/Card.vue';
 import TopBar from './components/TopBar.vue';
 
-const enableTop = ref(true);
-const showCards = ref([]);
+import useHandleNote from './hooks/useHandleNote';
 
-getTodayNotes();
+const enableTop = ref(true);
+
+const { noteList, handleCreateNote, handleGetTodayNotes } = useHandleNote();
+
+handleGetTodayNotes();
 
 async function changeWallpaper() {
   try {
@@ -37,18 +44,6 @@ async function handleToggleLayer() {
     console.log('置顶成功');
   } catch (error) {
     console.log('置顶失败', error);
-  }
-}
-
-async function getTodayNotes() {
-  try {
-    const notes = await invoke('get_notes_by_time_range_command', {
-      startTime: '2025-03-28 00:00:00',
-      endTime: '2025-03-28 23:59:59',
-    });
-    console.log('获取笔记成功', notes);
-  } catch (error) {
-    console.log('获取笔记失败', error);
   }
 }
 </script>

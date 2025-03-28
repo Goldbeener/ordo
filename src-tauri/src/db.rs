@@ -36,7 +36,7 @@ impl NoteDatabase {
     pub fn create_note(&self, note: &Note) -> Result<i64> {
         self.conn.execute(
             "INSERT INTO notes (title, content, create_time, last_modify_time, tags) 
-             VALUES (?1, ?2, ?3, ?4, ?5)",
+            VALUES (?1, ?2, ?3, ?4, ?5)",
             params![
                 note.title,
                 note.content,
