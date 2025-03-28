@@ -1,14 +1,7 @@
 <template>
   <div class="w-screen h-screen">
-    <header class="bg-white h-[36px] rounded-md">
-      <div class="h-full flex items-center">
-        <div class="grow"></div>
-        <div
-          class="flex justify-center items-center rounded-md bg-transparent w-[36px] h-full"
-        >
-          <RiAddLine size="24px" />
-        </div>
-      </div>
+    <header class="bg-white h-[56px] rounded-md">
+      <TopBar />
     </header>
     <main class="containers flex grow mt-3">
       <div class="w-full p-[32px] rounded-lg overflow-hidden">
@@ -21,8 +14,7 @@
 <script setup>
 import { invoke } from '@tauri-apps/api/core';
 import Card from './components/Card.vue';
-// import TopBar from './components/TopBar.vue';
-import { ref } from 'vue';
+import TopBar from './components/TopBar.vue';
 
 const enableTop = ref(true);
 
