@@ -20,6 +20,7 @@
     "@tiptap/starter-kit": "^2.11.5",
     "@tiptap/vue-3": "^2.11.5",
     "date-fns": "^4.1.0",
+    "lodash-es": "^4.17.21",
     "naive-ui": "^2.41.0",
     "vue": "^3.5.13"
   },

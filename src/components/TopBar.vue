@@ -6,7 +6,7 @@
       <n-tab-pane name="chap3" tab="我的"></n-tab-pane>
     </n-tabs>
     <div
-      class="flex justify-center items-center rounded-md bg-transparent w-[36px] h-full cursor-pointer"
+      class="flex justify-center items-center rounded-md bg-transparent w-[36px] h-[40px] hover:bg-slate-300 ml-2 cursor-pointer"
       @click="emit('create-note')"
     >
       <RiAddLine size="24px" />

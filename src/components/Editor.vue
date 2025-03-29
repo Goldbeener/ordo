@@ -9,10 +9,15 @@ import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
 import Placeholder from '@tiptap/extension-placeholder';
 
+const props = defineProps({
+  content: {
+    type: String,
+  },
+});
 const emit = defineEmits(['update']);
 
 const editor = useEditor({
-  content: ``,
+  content: props.content || '',
   extensions: [
     StarterKit,
     Highlight,
