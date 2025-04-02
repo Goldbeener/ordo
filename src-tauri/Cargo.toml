@@ -28,6 +28,8 @@ rusqlite = { version = "0.31.0", features = ["bundled"] }
 chrono = { version = "0.4", features = ["serde"] }
 anyhow = "1.0"
 base64 = "0.22.1"
+tauri-plugin-clipboard-manager = "2"
+tauri-plugin-notification = "2"
 
 [profile.dev.package.objc2]
 debug-assertions = false

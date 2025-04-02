@@ -18,6 +18,9 @@ const props = defineProps({
   },
 });
 const emit = defineEmits(['update']);
+defineExpose({
+  getEditorText
+})
 
 const editor = useEditor({
   content: props.content || '',
@@ -44,6 +47,10 @@ const editor = useEditor({
     emit('update', editor.value.getHTML());
   },
 });
+
+function getEditorText() {
+  return editor.value.getText()
+}
 </script>
 
 <style lang="less">

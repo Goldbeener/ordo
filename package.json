@@ -13,6 +13,8 @@
     "@date-fns/tz": "^1.2.0",
     "@remixicon/vue": "^4.6.0",
     "@tauri-apps/api": "^2",
+    "@tauri-apps/plugin-clipboard-manager": "~2",
+    "@tauri-apps/plugin-notification": "~2",
     "@tauri-apps/plugin-opener": "^2",
     "@tiptap/extension-highlight": "^2.11.5",
     "@tiptap/extension-paragraph": "^2.11.7",

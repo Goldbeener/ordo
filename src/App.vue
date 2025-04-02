@@ -1,4 +1,5 @@
 <template>
+  <n-notification-provider>
   <div class="w-screen h-screen flex flex-col items-center">
     <header class="w-full bg-white px-3 h-[56px] rounded-md">
       <TopBar @create-note="handleCreateNote" />
@@ -13,6 +14,8 @@
       </div>
     </main>
   </div>
+  </n-notification-provider>
+
 </template>
 
 <script setup>

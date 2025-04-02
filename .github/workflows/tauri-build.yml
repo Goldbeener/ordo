@@ -81,3 +81,54 @@ jobs:
           name: Tauri-Build-${{ matrix.platform }}
           path: |
             src-tauri/target/release/bundle/**/*
+
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          name: Tauri-Build-macos-latest
+          path: dist/macos
+
+      - name: 下载 Windows 产物
+        uses: actions/download-artifact@v4
+        with:
+          name: Tauri-Build-windows-latest
+          path: dist/windows
+
+      - name: 创建 GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+
+      - name: 上传 macOS 产物
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/macos/YOUR_APP_NAME.app.tar.gz
+          asset_name: YOUR_APP_NAME-macos.tar.gz
+          asset_content_type: application/gzip
+
+      - name: 上传 Windows 产物
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/windows/YOUR_APP_NAME_x64_en-US.msi
+          asset_name: YOUR_APP_NAME-windows.msi
+          asset_content_type: application/x-msi

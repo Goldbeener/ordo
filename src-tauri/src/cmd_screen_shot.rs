@@ -6,7 +6,6 @@ use std::thread;
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager};
 
-
 // 全局存储截图处理任务通道
 pub struct ScreenshotTaskManager(Sender<ScreenshotTask>);
 
@@ -15,7 +14,7 @@ struct ScreenshotTask {
     save_path: String,
     format: String,
     app_handle: AppHandle,
-    request_id: String,  // 添加请求ID用于跟踪任务
+    request_id: String, // 添加请求ID用于跟踪任务
 }
 
 // 初始化截图任务管理器
@@ -55,24 +54,27 @@ fn process_screenshot_task(task: ScreenshotTask) -> Result<(), String> {
     println!("存储截图路径, {}!", full_path.display());
 
     // 将Base64数据解码为图像数据
-    let image_data = general_purpose::STANDARD.decode(&task.base64_data)
+    let image_data = general_purpose::STANDARD
+        .decode(&task.base64_data)
         .map_err(|e| format!("Base64解码失败: {}", e))?;
 
     // 保存图像文件
-    let mut file = File::create(&full_path)
-        .map_err(|e| format!("创建文件失败: {}", e))?;
+    let mut file = File::create(&full_path).map_err(|e| format!("创建文件失败: {}", e))?;
 
     file.write_all(&image_data)
         .map_err(|e| format!("写入文件失败: {}", e))?;
 
     println!("发送事件通知前端{}", request_id);
     // 发送事件通知前端保存完成
-    let _ = app_handle.app_handle().emit("screenshot-saved", ScreenshotSaveEvent {
-        path: full_path.to_string_lossy().to_string(),
-        format: task.format,
-        success: true,
-        request_id,  // 包含请求ID在事件中
-    });
+    let _ = app_handle.app_handle().emit(
+        "screenshot-saved",
+        ScreenshotSaveEvent {
+            path: full_path.to_string_lossy().to_string(),
+            format: task.format,
+            success: true,
+            request_id, // 包含请求ID在事件中
+        },
+    );
     println!("发送事件通知前端 ---完成");
 
     Ok(())
@@ -84,7 +86,7 @@ struct ScreenshotSaveEvent {
     path: String,
     format: String,
     success: bool,
-    request_id: String,  // 添加请求ID字段
+    request_id: String, // 添加请求ID字段
 }
 
 // 处理截图保存命令
@@ -94,7 +96,7 @@ pub async fn save_screenshot(
     base64_data: String,
     save_path: String,
     format: String,
-    request_id: String,  // 添加请求ID参数
+    request_id: String, // 添加请求ID参数
     task_manager: tauri::State<'_, ScreenshotTaskManager>,
 ) -> Result<(), String> {
     // 创建截图任务并发送到处理队列
@@ -103,12 +105,14 @@ pub async fn save_screenshot(
         save_path,
         format,
         app_handle: app_handle.clone(),
-        request_id,  // 设置请求ID
+        request_id, // 设置请求ID
     };
 
     println!("接收到保存图片命令");
     // 发送任务到队列
-    task_manager.0.send(task)
+    task_manager
+        .0
+        .send(task)
         .map_err(|e| format!("发送截图任务失败: {}", e))?;
 
     Ok(())
