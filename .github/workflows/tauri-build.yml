@@ -18,6 +18,20 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
+      # ✅ 安装 Node.js，并使用 pnpm 作为包管理器
+      - name: 设置 Node.js 环境
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'pnpm'
+
+      - name: 安装 pnpm
+        run: npm install -g pnpm
+
+      - name: 安装前端依赖
+        run: pnpm install
+
+      # ✅ 安装 Rust
       - name: 安装 Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -26,6 +40,7 @@ jobs:
             aarch64-apple-darwin
             x86_64-pc-windows-msvc
 
+      # ✅ Windows 依赖（手动安装 Wix）
       - name: 安装 Windows 依赖（手动安装 Wix）
         if: matrix.platform == 'windows-latest'
         run: |
@@ -33,18 +48,22 @@ jobs:
           Start-Process -FilePath "C:\wix311.exe" -ArgumentList "/quiet" -NoNewWindow -Wait
           echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
+      # ✅ macOS 依赖
       - name: 安装 macOS 交叉编译工具
         if: matrix.platform == 'macos-latest'
         run: |
           brew install zig
           cargo install cargo-zigbuild
 
+      # ✅ 安装 Tauri CLI
       - name: 安装 Tauri CLI
         run: cargo install tauri-cli
 
+      # ✅ 构建 Tauri 应用
       - name: 构建应用
         run: cargo tauri build
 
+      # ✅ 上传构建产物
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
