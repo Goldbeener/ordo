@@ -1,0 +1,68 @@
+name: Tauri Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'  # 触发条件：推送带 v 前缀的 tag，例如 v1.0.0
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 安装 Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: |
+            x86_64-apple-darwin
+            aarch64-apple-darwin
+            x86_64-pc-windows-msvc
+
+      - name: 安装 Windows 依赖
+        if: matrix.platform == 'windows-latest'
+        run: |
+          choco install wix nsis --no-progress
+
+      - name: 安装 macOS 交叉编译工具
+        if: matrix.platform == 'macos-latest'
+        run: |
+          brew install zig
+          cargo install cargo-zigbuild
+
+      - name: 安装 Tauri CLI
+        run: cargo install tauri-cli
+
+      - name: 构建应用
+        run: cargo tauri build
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: Tauri-Build-${{ matrix.platform }}
+          path: |
+            src-tauri/target/release/bundle/**/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: 下载构建产物
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: 创建 GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/**
+          tag_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
