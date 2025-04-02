@@ -21,19 +21,16 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = ["macos-private-api"] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
 wallpaper = "3.2.0"
-thiserror = "1.0"
 image = "0.24.7"
-rusttype = "0.9"
 fontdue = "0.7"
 rusqlite = { version = "0.31.0", features = ["bundled"] }
 chrono = { version = "0.4", features = ["serde"] }
 anyhow = "1.0"
-
-[dependencies.tauri-plugin-sql]
-version = "2.0.0"
-features = ["sqlite"]
+base64 = "0.22.1"
 
 [profile.dev.package.objc2]
 debug-assertions = false
+
+[profile.dev]
+debug = 0

@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import { startOfDay, endOfDay} from 'date-fns'
 
 const noteList = ref([]);
 async function handleCreateNote() {
@@ -18,9 +19,10 @@ async function handleCreateNote() {
 
 async function handleGetTodayNotes() {
   try {
-    const notes = await invoke('list_notes', {
-      start_date: '2025-03-28 00:00:00',
-      end_date: '2025-03-28 23:59:59',
+    const today = new Date();
+    const notes = await invoke("list_notes", {
+      startDate: startOfDay(today).toISOString(),
+      endDate: endOfDay(today).toISOString()
     });
     console.log('获取笔记成功', notes);
     noteList.value = notes;

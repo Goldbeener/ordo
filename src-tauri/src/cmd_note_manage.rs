@@ -71,6 +71,10 @@ pub async fn list_notes(
     start_date: Option<String>,
     end_date: Option<String>,
 ) -> Result<Vec<Note>, String> {
+
+    println!("Received start_date: {:?}", start_date);
+    println!("Received end_date: {:?}", end_date);
+
     let start = start_date.and_then(|d| {
         DateTime::parse_from_rfc3339(&d)
             .ok()

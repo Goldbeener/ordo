@@ -8,6 +8,9 @@ import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
 import Placeholder from '@tiptap/extension-placeholder';
+import TaskItem from '@tiptap/extension-task-item'
+import TaskList from '@tiptap/extension-task-list'
+import Paragraph from '@tiptap/extension-paragraph'
 
 const props = defineProps({
   content: {
@@ -20,10 +23,15 @@ const editor = useEditor({
   content: props.content || '',
   extensions: [
     StarterKit,
+    Paragraph,
     Highlight,
     Typography,
     Placeholder.configure({
       placeholder: 'Write something …',
+    }),
+    TaskList,
+    TaskItem.configure({
+      nested: true,
     }),
   ],
   editorProps: {
@@ -49,6 +57,19 @@ const editor = useEditor({
     float: left;
     height: 0;
     pointer-events: none;
+  }
+  ul[data-type="taskList"] {
+    margin: 0;
+    padding-left: 0;
+    li {
+      display: flex;
+      align-items: baseline;
+      padding-inline-start: 0;
+      label {
+        margin-right: 14px;
+        font-size: 16px;
+      }
+    }
   }
 }
 </style>

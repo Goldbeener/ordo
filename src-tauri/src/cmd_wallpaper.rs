@@ -5,21 +5,13 @@ use std::path::{Path, PathBuf};
 use tauri::{App, Manager};
 
 #[tauri::command]
-pub fn gen_set_wallpaper() -> Result<(), String> {
-    // 图片宽高、颜色、文本、输出路径、字体路径
-    let result = generate_image_with_text(1920, 1080, "assets/wallpapers/current.png");
-
-    if let Err(e) = result {
-        eprintln!("生成图片失败: {}", e);
-    } else {
-        println!("图片生成成功: output.png");
-    }
-    set_wallpaper()
+pub fn gen_set_wallpaper(path: String) -> Result<(), String> {
+    set_wallpaper(path)
 }
 
-pub fn set_wallpaper() -> Result<(), String> {
+pub fn set_wallpaper(path: String) -> Result<(), String> {
     // Construct the full path to the wallpaper image
-    let wallpaper_path: PathBuf = Path::new("assets/wallpapers").join("starry-sky.jpg");
+    let wallpaper_path: PathBuf = PathBuf::from(Path::new(path.as_str()));
 
     // Validate the wallpaper file exists
     if !wallpaper_path.exists() {

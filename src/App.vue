@@ -1,11 +1,11 @@
 <template>
-  <div class="w-screen h-screen">
-    <header class="bg-white px-3 h-[56px] rounded-md">
+  <div class="w-screen h-screen flex flex-col items-center">
+    <header class="w-full bg-white px-3 h-[56px] rounded-md">
       <TopBar @create-note="handleCreateNote" />
     </header>
-    <main class="containers flex flex-col grow mt-3">
+    <main class="container w-screen overflow-scroll">
       <div
-        class="w-full py-[32px] px-[16px] pb-0 overflow-hidden"
+        class="w-full py-[32px] px-[16px] pb-0"
         v-for="note in noteList"
         :key="note.id"
       >
@@ -48,4 +48,8 @@ async function handleToggleLayer() {
 }
 </script>
 
-<style lang="less"></style>
+<style lang="less">
+  ::-webkit-scrollbar {
+    display: none;
+  }
+</style>

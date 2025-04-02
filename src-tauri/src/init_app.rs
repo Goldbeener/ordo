@@ -19,14 +19,14 @@ pub fn initialize_app(app: &mut App) -> Result<(), anyhow::Error> {
 }
 
 fn configure_window(window: tauri::WebviewWindow) -> Result<(), anyhow::Error> {
+    // 设置窗口层级
     window.set_always_on_top(true).unwrap();
-
     // 获取屏幕大小
     let primary_monitor = window.primary_monitor().unwrap().unwrap();
     let screen_size = primary_monitor.size();
 
     let fixed_width = 800.0; // 固定宽度
-    let full_height = screen_size.height as f64; // 屏幕高度
+    let full_height = screen_size.height as f64 - 200.0; // 屏幕高度
 
     // 设置窗口大小
     window
