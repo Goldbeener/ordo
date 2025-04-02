@@ -18,16 +18,27 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      # ✅ 安装 Node.js，并使用 pnpm 作为包管理器
+      # ✅ 先安装 Node.js（但不缓存 pnpm）
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18  # 你可以换成适合你的版本
+
+      # ✅ 先手动安装 pnpm，再让 setup-node 进行缓存
+      - name: 安装 pnpm
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm --version  # 确保安装成功
+
+      # ✅ 重新运行 setup-node，并缓存 pnpm
+      - name: 重新设置 Node.js，启用 pnpm 缓存
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
           cache: 'pnpm'
 
-      - name: 启用 pnpm
-        run: corepack enable
-
+      # ✅ 安装前端依赖
       - name: 安装前端依赖
         run: pnpm install
 
