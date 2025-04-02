@@ -3,8 +3,8 @@ name: Tauri Build & Release
 on:
   push:
     tags:
-      - 'v*'  # 触发条件：推送带 v 前缀的 tag，例如 v1.0.0
-  workflow_dispatch:  # 允许手动触发
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -26,10 +26,12 @@ jobs:
             aarch64-apple-darwin
             x86_64-pc-windows-msvc
 
-      - name: 安装 Windows 依赖
+      - name: 安装 Windows 依赖（手动安装 Wix）
         if: matrix.platform == 'windows-latest'
         run: |
-          choco install wix nsis --no-progress
+          Invoke-WebRequest -Uri "https://github.com/wixtoolset/wix3/releases/download/wix3111rtm/wix311.exe" -OutFile "C:\wix311.exe"
+          Start-Process -FilePath "C:\wix311.exe" -ArgumentList "/quiet" -NoNewWindow -Wait
+          echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: 安装 macOS 交叉编译工具
         if: matrix.platform == 'macos-latest'
@@ -49,20 +51,3 @@ jobs:
           name: Tauri-Build-${{ matrix.platform }}
           path: |
             src-tauri/target/release/bundle/**/*
-
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: 下载构建产物
-        uses: actions/download-artifact@v4
-        with:
-          path: dist
-
-      - name: 创建 GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/**
-          tag_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
