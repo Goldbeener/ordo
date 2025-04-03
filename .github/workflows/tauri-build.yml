@@ -102,11 +102,17 @@ jobs:
           name: Tauri-Build-macos-latest
           path: release-assets/
 
+      - name: 检查 release-assets 目录（调试用）
+        run: ls -R release-assets/
+
       - name: 下载 Windows 产物
         uses: actions/download-artifact@v4
         with:
           name: Tauri-Build-windows-latest
           path: release-assets/
+
+      - name: 检查 release-assets 目录（调试用）
+        run: ls -R release-assets/
 
       - name: 创建 GitHub Release
         id: create_release
@@ -119,13 +125,17 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: 获取 macOS DMG 产物路径
+        id: find_dmg
+        run: echo "DMG_PATH=$(find release-assets -name '*.dmg' -print -quit)" >> $GITHUB_ENV
+
       - name: 上传 macOS 产物
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release-assets/*.dmg
+          asset_path: ${{ env.DMG_PATH }}
           asset_name: YOUR_APP_NAME-macos.dmg
           asset_content_type: application/octet-stream
 
