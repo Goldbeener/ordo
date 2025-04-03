@@ -69,8 +69,10 @@ jobs:
       - name: 列出构建目录文件（调试用）
         run: |
           if [ "${{ matrix.platform }}" = "macos-latest" ]; then
-            echo "macOS 构建产物:"
-            find src-tauri/target -name "*.dmg" -o -name "*.app"
+            echo "macOS bundle目录内容:"
+            ls -la src-tauri/target/release/bundle/macos/ || echo "macOS bundle目录不存在"
+            echo "macOS dmg目录内容:"
+            ls -la src-tauri/target/release/bundle/dmg/ || echo "macOS dmg目录不存在"
           else
             echo "Windows 构建产物:"
             find src-tauri/target -name "*.msi" -o -name "*.exe" | grep -v "\\\\target\\\\debug\\\\"
@@ -80,21 +82,35 @@ jobs:
       - name: 确保构建目录存在
         run: mkdir -p release-assets
 
-      - name: 移动 macOS 构建产物
+      - name: 移动 macOS 构建产物（指定路径）
         if: matrix.platform == 'macos-latest'
         shell: bash
         run: |
-          # 复制所有 DMG 文件
-          find src-tauri/target -name "*.dmg" -type f -exec cp {} release-assets/ \;
+          # 检查并复制 macos 目录下的所有内容
+          if [ -d "src-tauri/target/release/bundle/macos" ]; then
+            echo "复制 macos 目录的内容..."
+            # 对于 .app 文件，创建压缩包
+            find src-tauri/target/release/bundle/macos -name "*.app" -type d | while read app_path; do
+              app_name=$(basename "$app_path")
+              (cd "$(dirname "$app_path")" && zip -r "../../../../../../../../release-assets/${app_name%.app}.zip" "$app_name")
+            done
           
-          # 将 .app 文件打包为 zip
-          for app_path in $(find src-tauri/target -name "*.app" -type d); do
-            app_name=$(basename "$app_path")
-            app_dir=$(dirname "$app_path")
-            (cd "$app_dir" && zip -r "../../../../../release-assets/${app_name%.app}.zip" "$app_name")
-          done
+            # 复制其他文件
+            find src-tauri/target/release/bundle/macos -type f -exec cp {} release-assets/ \;
+          else
+            echo "macos 目录不存在"
+          fi
           
-          # 检查是否成功复制了文件
+          # 检查并复制 dmg 目录下的所有内容
+          if [ -d "src-tauri/target/release/bundle/dmg" ]; then
+            echo "复制 dmg 目录的内容..."
+            cp -r src-tauri/target/release/bundle/dmg/* release-assets/
+          else
+            echo "dmg 目录不存在"
+          fi
+          
+          # 确认复制的文件
+          echo "release-assets 目录内容:"
           ls -la release-assets/
 
       - name: 移动 Windows 构建产物
@@ -130,25 +146,29 @@ jobs:
           name: Tauri-Build-windows-latest
           path: release-assets/windows/
 
+      - name: 查看下载的构建产物
+        run: |
+          echo "macOS 构建产物:"
+          ls -la release-assets/macos/
+          echo "Windows 构建产物:"
+          ls -la release-assets/windows/
+
       - name: 准备发布文件
         run: |
           mkdir -p final-release
           
-          # 处理 macOS 文件，重命名为更友好的名称
-          for file in $(find release-assets/macos -name "*.dmg"); do
-            cp "$file" final-release/Ordo-macOS.dmg
+          # 复制所有 macOS 产物并添加前缀
+          for file in $(find release-assets/macos -type f); do
+            filename=$(basename "$file")
+            cp "$file" "final-release/Ordo-macOS-${filename}"
           done
           
-          for file in $(find release-assets/macos -name "*.zip"); do
-            cp "$file" final-release/Ordo-macOS.zip
-          done
-          
-          # 处理 Windows 文件，重命名为更友好的名称
-          for file in $(find release-assets/windows -name "*.msi"); do
+          # 复制所有 Windows 产物并添加前缀
+          for file in $(find release-assets/windows -name "*.msi" -type f); do
             cp "$file" final-release/Ordo-Windows.msi
           done
           
-          for file in $(find release-assets/windows -name "*.exe"); do
+          for file in $(find release-assets/windows -name "*.exe" -type f); do
             cp "$file" final-release/Ordo-Windows-Setup.exe
           done
           
