@@ -75,8 +75,8 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
-            mv src-tauri/target/release/bundle/macos/*.dmg release-assets/ || true
-            mv src-tauri/target/release/bundle/macos/*.app.tar.gz release-assets/ || true
+            mv src-tauri/target/release/bundle/macos/*.app release-assets/ || true
+            mv src-tauri/target/release/bundle/dmg/*.dmg release-assets/ || true
           else
             mv src-tauri/target/release/bundle/msi/*.msi release-assets/ || true
             mv src-tauri/target/release/bundle/nsis/*.exe release-assets/ || true
