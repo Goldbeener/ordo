@@ -60,27 +60,53 @@ jobs:
           cargo install cargo-zigbuild
 
       - name: 安装 Tauri CLI
-        run: cargo install tauri-cli
+        run: cargo install tauri-cli --locked
 
       - name: 构建应用
         run: cargo tauri build
+        shell: bash
 
       - name: 列出构建目录文件（调试用）
-        run: ls -R src-tauri/target/release/bundle/
+        run: |
+          if [ "${{ matrix.platform }}" = "macos-latest" ]; then
+            echo "macOS 构建产物:"
+            find src-tauri/target -name "*.dmg" -o -name "*.app"
+          else
+            echo "Windows 构建产物:"
+            find src-tauri/target -name "*.msi" -o -name "*.exe" | grep -v "\\\\target\\\\debug\\\\"
+          fi
+        shell: bash
 
       - name: 确保构建目录存在
         run: mkdir -p release-assets
 
-      - name: 移动构建产物到统一目录
+      - name: 移动 macOS 构建产物
+        if: matrix.platform == 'macos-latest'
         shell: bash
         run: |
-          if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
-            mv src-tauri/target/release/bundle/macos/*.app release-assets/ || true
-            mv src-tauri/target/release/bundle/dmg/*.dmg release-assets/ || true
-          else
-            mv src-tauri/target/release/bundle/msi/*.msi release-assets/ || true
-            mv src-tauri/target/release/bundle/nsis/*.exe release-assets/ || true
-          fi
+          # 复制所有 DMG 文件
+          find src-tauri/target -name "*.dmg" -type f -exec cp {} release-assets/ \;
+          
+          # 将 .app 文件打包为 zip
+          for app_path in $(find src-tauri/target -name "*.app" -type d); do
+            app_name=$(basename "$app_path")
+            app_dir=$(dirname "$app_path")
+            (cd "$app_dir" && zip -r "../../../../../release-assets/${app_name%.app}.zip" "$app_name")
+          done
+          
+          # 检查是否成功复制了文件
+          ls -la release-assets/
+
+      - name: 移动 Windows 构建产物
+        if: matrix.platform == 'windows-latest'
+        shell: bash
+        run: |
+          # 复制所有 MSI 和 EXE 安装程序文件
+          find src-tauri/target -name "*.msi" -type f -exec cp {} release-assets/ \;
+          find src-tauri/target -name "*.exe" -type f | grep -v "\\\\target\\\\debug\\\\" | grep -v "\\\\deps\\\\" | xargs -I{} cp {} release-assets/ || echo "No EXE installers found"
+          
+          # 检查是否成功复制了文件
+          ls -la release-assets/
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
@@ -88,83 +114,56 @@ jobs:
           name: Tauri-Build-${{ matrix.platform }}
           path: release-assets/*
 
-
   release:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
-
       - name: 下载 macOS 产物
         uses: actions/download-artifact@v4
         with:
           name: Tauri-Build-macos-latest
-          path: release-assets/
-
-      - name: 检查 release-assets 目录（调试用）
-        run: ls -R release-assets/
+          path: release-assets/macos/
 
       - name: 下载 Windows 产物
         uses: actions/download-artifact@v4
         with:
           name: Tauri-Build-windows-latest
-          path: release-assets/
+          path: release-assets/windows/
 
-      - name: 检查 release-assets 目录（调试用）
-        run: ls -R release-assets/
+      - name: 准备发布文件
+        run: |
+          mkdir -p final-release
+          
+          # 处理 macOS 文件，重命名为更友好的名称
+          for file in $(find release-assets/macos -name "*.dmg"); do
+            cp "$file" final-release/Ordo-macOS.dmg
+          done
+          
+          for file in $(find release-assets/macos -name "*.zip"); do
+            cp "$file" final-release/Ordo-macOS.zip
+          done
+          
+          # 处理 Windows 文件，重命名为更友好的名称
+          for file in $(find release-assets/windows -name "*.msi"); do
+            cp "$file" final-release/Ordo-Windows.msi
+          done
+          
+          for file in $(find release-assets/windows -name "*.exe"); do
+            cp "$file" final-release/Ordo-Windows-Setup.exe
+          done
+          
+          # 查看最终将要发布的文件
+          echo "将发布以下文件:"
+          ls -la final-release/
 
       - name: 创建 GitHub Release
-        id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release v${{ github.run_number }}
+          tag_name: ${{ github.ref_name || format('v{0}', github.run_number) }}
+          name: Release ${{ github.ref_name || format('v{0}', github.run_number) }}
           draft: false
           prerelease: false
-
-      - name: 获取 macOS DMG 产物路径
-        id: find_dmg
-        run: echo "DMG_PATH=$(find release-assets -name '*.dmg' -print -quit)" >> $GITHUB_ENV
-
-      - name: 上传 macOS 产物
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.DMG_PATH }}
-          asset_name: YOUR_APP_NAME-macos.dmg
-          asset_content_type: application/octet-stream
-
-      - name: 获取 Windows MSI 产物路径
-        id: find_msi
-        shell: bash
-        run: echo "MSI_PATH=$(find release-assets -name '*.msi' -print -quit)" >> "$GITHUB_OUTPUT"
-
-      - name: 上传 Windows MSI 产物
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_msi.outputs.MSI_PATH }}
-          asset_name: YOUR_APP_NAME-windows.msi
-          asset_content_type: application/x-msi
-
-      - name: 获取 Windows NSIS 产物路径
-        id: find_nsis
-        shell: bash
-        run: echo "NSIS_PATH=$(find release-assets -name '*.exe' -print -quit)" >> "$GITHUB_OUTPUT"
-
-      - name: 上传 Windows NSIS 安装包
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.find_nsis.outputs.NSIS_PATH }}
-          asset_name: YOUR_APP_NAME-windows.exe
-          asset_content_type: application/vnd.microsoft.portable-executable
+          files: final-release/*
+          fail_on_unmatched_files: false
