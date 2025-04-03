@@ -141,7 +141,8 @@ jobs:
 
       - name: 获取 Windows MSI 产物路径
         id: find_msi
-        run: echo "MSI_PATH=$(find release-assets -name '*.msi' -print -quit)" >> $GITHUB_ENV
+        shell: bash
+        run: echo "MSI_PATH=$(find release-assets -name '*.msi' -print -quit)" >> "$GITHUB_OUTPUT"
 
       - name: 上传 Windows MSI 产物
         uses: actions/upload-release-asset@v1
@@ -149,13 +150,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: {{ env.MSI_PATH }}
+          asset_path: ${{ steps.find_msi.outputs.MSI_PATH }}
           asset_name: YOUR_APP_NAME-windows.msi
           asset_content_type: application/x-msi
 
       - name: 获取 Windows NSIS 产物路径
         id: find_nsis
-        run: echo "NSIS_PATH=$(find release-assets -name '*.exe' -print -quit)" >> $GITHUB_ENV
+        shell: bash
+        run: echo "NSIS_PATH=$(find release-assets -name '*.exe' -print -quit)" >> "$GITHUB_OUTPUT"
 
       - name: 上传 Windows NSIS 安装包
         uses: actions/upload-release-asset@v1
@@ -163,6 +165,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: {{ env.NSIS_PATH }}
+          asset_path: ${{ steps.find_nsis.outputs.NSIS_PATH }}
           asset_name: YOUR_APP_NAME-windows.exe
           asset_content_type: application/vnd.microsoft.portable-executable
