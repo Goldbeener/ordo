@@ -65,15 +65,20 @@ jobs:
       - name: 构建应用
         run: cargo tauri build
 
+      - name: 列出构建目录文件（调试用）
+        run: ls -R src-tauri/target/release/bundle/
+
       - name: 确保构建目录存在
         run: mkdir -p release-assets
 
       - name: 移动构建产物到统一目录
         run: |
           if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
-            mv src-tauri/target/release/bundle/macos/*.app.tar.gz release-assets/
+            mv src-tauri/target/release/bundle/macos/*.dmg release-assets/ || true
+            mv src-tauri/target/release/bundle/macos/*.app.tar.gz release-assets/ || true
           else
-            mv src-tauri/target/release/bundle/msi/*.msi release-assets/
+            mv src-tauri/target/release/bundle/msi/*.msi release-assets/ || true
+            mv src-tauri/target/release/bundle/nsis/*.exe release-assets/ || true
           fi
 
       - name: 上传构建产物
@@ -119,11 +124,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: release-assets/*.app.tar.gz
-          asset_name: YOUR_APP_NAME-macos.tar.gz
-          asset_content_type: application/gzip
+          asset_path: release-assets/*.dmg
+          asset_name: YOUR_APP_NAME-macos.dmg
+          asset_content_type: application/octet-stream
 
-      - name: 上传 Windows 产物
+      - name: 上传 Windows MSI 产物
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -132,3 +137,13 @@ jobs:
           asset_path: release-assets/*.msi
           asset_name: YOUR_APP_NAME-windows.msi
           asset_content_type: application/x-msi
+
+      - name: 上传 Windows NSIS 安装包
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release-assets/*.exe
+          asset_name: YOUR_APP_NAME-windows.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
