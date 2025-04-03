@@ -16,6 +16,10 @@ const props = defineProps({
   content: {
     type: String,
   },
+  editable: {
+    type: Boolean,
+    default: true
+  }
 });
 const emit = defineEmits(['update']);
 defineExpose({
@@ -23,6 +27,7 @@ defineExpose({
 })
 
 const editor = useEditor({
+  editable: props.editable,
   content: props.content || '',
   extensions: [
     StarterKit,

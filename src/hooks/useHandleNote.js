@@ -1,7 +1,8 @@
 import { invoke } from '@tauri-apps/api/core';
-import { startOfDay, endOfDay} from 'date-fns'
+import { startOfDay, endOfDay, startOfWeek, endOfWeek, setHours, setMinutes, setSeconds, setMilliseconds} from 'date-fns'
 
 const noteList = ref([]);
+const weeklyNoteList = ref([]);
 async function handleCreateNote() {
   try {
     // 创建一定是空的
@@ -26,6 +27,26 @@ async function handleGetTodayNotes() {
     });
     console.log('获取笔记成功', notes);
     noteList.value = notes;
+  } catch (error) {
+    console.log('获取笔记失败', error);
+  }
+}
+
+async function handleGetWeeklyNotes() {
+  try {
+    const today = new Date();
+    const mondayStart = setMilliseconds(
+        setSeconds(setMinutes(setHours(startOfWeek(today, { weekStartsOn: 1 }), 0), 0), 0),
+        0
+    )
+    const sundayEnd = setMilliseconds(
+        setSeconds(setMinutes(setHours(endOfWeek(today, { weekStartsOn: 1 }), 23), 59), 59),
+        999
+    )
+    weeklyNoteList.value = await invoke("list_notes", {
+      startDate: mondayStart.toISOString(),
+      endDate: sundayEnd.toISOString()
+    });
   } catch (error) {
     console.log('获取笔记失败', error);
   }
@@ -56,8 +77,10 @@ async function handleDeleteNote(id) {
 export default function useHandleNote() {
   return {
     noteList,
+    weeklyNoteList,
     handleCreateNote,
     handleGetTodayNotes,
+    handleGetWeeklyNotes,
     handleUpdateNote,
     handleDeleteNote,
   };
