@@ -78,7 +78,8 @@ const updateNote = debounce(handleUpdateNote, 1000);
 async function handleCaptureScreenshot() {
   await captureToFile()
   notification.success({
-    content: '设置成功！'
+    content: '设置成功！',
+    duration: 2000
   })
 }
 
@@ -86,14 +87,16 @@ async function handleCopyNote() {
   const editorContent = targetElement.value.getEditorText();
   await writeText(editorContent);
   notification.success({
-    content: '复制成功！'
+    content: '复制成功！',
+    duration: 2000
   })
 }
 
 async function handleDeleteNote() {
   await handleDelete(props.note.id);
   notification.success({
-    content: '删除成功！'
+    content: '删除成功！',
+    duration: 2000
   })
 }
 
