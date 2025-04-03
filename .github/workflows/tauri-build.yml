@@ -72,6 +72,7 @@ jobs:
         run: mkdir -p release-assets
 
       - name: 移动构建产物到统一目录
+        shell: bash
         run: |
           if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
             mv src-tauri/target/release/bundle/macos/*.dmg release-assets/ || true
