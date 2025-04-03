@@ -18,31 +18,26 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      # ✅ 先安装 Node.js（但不缓存 pnpm）
       - name: 设置 Node.js 环境
         uses: actions/setup-node@v4
         with:
-          node-version: 18  # 你可以换成适合你的版本
+          node-version: 18
 
-      # ✅ 先手动安装 pnpm，再让 setup-node 进行缓存
       - name: 安装 pnpm
         run: |
           corepack enable
           corepack prepare pnpm@latest --activate
-          pnpm --version  # 确保安装成功
+          pnpm --version
 
-      # ✅ 重新运行 setup-node，并缓存 pnpm
       - name: 重新设置 Node.js，启用 pnpm 缓存
         uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: 'pnpm'
 
-      # ✅ 安装前端依赖
       - name: 安装前端依赖
         run: pnpm install
 
-      # ✅ 安装 Rust
       - name: 安装 Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -51,7 +46,6 @@ jobs:
             aarch64-apple-darwin
             x86_64-pc-windows-msvc
 
-      # ✅ Windows 依赖（手动安装 Wix）
       - name: 安装 Windows 依赖（手动安装 Wix）
         if: matrix.platform == 'windows-latest'
         run: |
@@ -59,28 +53,34 @@ jobs:
           Start-Process -FilePath "C:\wix311.exe" -ArgumentList "/quiet" -NoNewWindow -Wait
           echo "C:\Program Files (x86)\WiX Toolset v3.11\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      # ✅ macOS 依赖
       - name: 安装 macOS 交叉编译工具
         if: matrix.platform == 'macos-latest'
         run: |
           brew install zig
           cargo install cargo-zigbuild
 
-      # ✅ 安装 Tauri CLI
       - name: 安装 Tauri CLI
         run: cargo install tauri-cli
 
-      # ✅ 构建 Tauri 应用
       - name: 构建应用
         run: cargo tauri build
 
-      # ✅ 上传构建产物
+      - name: 确保构建目录存在
+        run: mkdir -p release-assets
+
+      - name: 移动构建产物到统一目录
+        run: |
+          if [[ "${{ matrix.platform }}" == "macos-latest" ]]; then
+            mv src-tauri/target/release/bundle/macos/*.app.tar.gz release-assets/
+          else
+            mv src-tauri/target/release/bundle/msi/*.msi release-assets/
+          fi
+
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
           name: Tauri-Build-${{ matrix.platform }}
-          path: |
-            src-tauri/target/release/bundle/**/*
+          path: release-assets/*
 
 
   release:
@@ -90,17 +90,17 @@ jobs:
       - name: 检出代码
         uses: actions/checkout@v4
 
-      - name: 下载构建产物
+      - name: 下载 macOS 产物
         uses: actions/download-artifact@v4
         with:
           name: Tauri-Build-macos-latest
-          path: dist/macos
+          path: release-assets/
 
       - name: 下载 Windows 产物
         uses: actions/download-artifact@v4
         with:
           name: Tauri-Build-windows-latest
-          path: dist/windows
+          path: release-assets/
 
       - name: 创建 GitHub Release
         id: create_release
@@ -119,7 +119,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/macos/YOUR_APP_NAME.app.tar.gz
+          asset_path: release-assets/*.app.tar.gz
           asset_name: YOUR_APP_NAME-macos.tar.gz
           asset_content_type: application/gzip
 
@@ -129,6 +129,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: dist/windows/YOUR_APP_NAME_x64_en-US.msi
+          asset_path: release-assets/*.msi
           asset_name: YOUR_APP_NAME-windows.msi
           asset_content_type: application/x-msi
