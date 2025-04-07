@@ -95,8 +95,9 @@ jobs:
           
           
           # 确认复制的文件
+          cd 
           echo "release-assets/macos 目录内容:"
-          ls -la release-assets/macos
+          ls -la "$GITHUB_WORKSPACE/release-assets/macos/"
 
       - name: 移动 Windows 构建产物
         if: matrix.platform == 'windows-latest'
