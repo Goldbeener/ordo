@@ -87,15 +87,17 @@ jobs:
         shell: bash
         run: |
           # 确保目标目录存在
-          mkdir -p release-assets/macos
+          mkdir -p release-assets/macos/dmg
           
           # 先简单复制 dmg 文件
           if [ -d "src-tauri/target/release/bundle/dmg" ]; then
             echo "复制 dmg 目录的内容..."
-            cp -v src-tauri/target/release/bundle/dmg/* release-assets/macos/ || echo "没有找到 DMG 文件"
+            cp -v src-tauri/target/release/bundle/dmg/* release-assets/macos/dmg || echo "没有找到 DMG 文件"
           else
             echo "dmg 目录不存在"
           fi
+          
+          
           
           # 复制 .app 并创建压缩包
           if [ -d "src-tauri/target/release/bundle/macos" ]; then
@@ -202,8 +204,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name || format('v{0}', github.run_number) }}
-          name: Release ${{ github.ref_name || format('v{0}', github.run_number) }}
+          tag_name: ${{ format('v{0}', github.run_number) }}
+          name: Release ${{ format('v{0}', github.run_number) }}
           draft: false
           prerelease: false
           files: final-release/*
