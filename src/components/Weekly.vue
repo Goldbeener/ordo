@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full flex px-4 py-3 overflow-scroll">
+  <div class="h-full w-full flex px-4 py-8 overflow-scroll">
     <n-timeline>
       <n-timeline-item v-for="(dayNotes, key) in timeLineData" :key="key">
         <n-collapse :default-expanded-names="['1']">
@@ -50,16 +50,79 @@ function formatTime(dateString) {
 
 <style scoped lang="less">
 :deep(.n-timeline) {
-  &-item:nth-child(1) { background: #F2F5F9; } /* 周一 */
-  &-item:nth-child(2) { background: #E3EDF7; } /* 周二 */
-  &-item:nth-child(3) { background: #E1F3F1; } /* 周三 */
-  &-item:nth-child(4) { background: #E9F6E5; } /* 周四 */
-  &-item:nth-child(5) { background: #FCF7DC; } /* 周五 */
-  &-item:nth-child(6) { background: #FDEEDC; } /* 周六 */
-  &-item:nth-child(7) { background: #FCE8E9; } /* 周日 */
+
+  &-item {
+    padding-top: 20px !important;
+  }
+  &-item:first-of-type {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+  &-item:last-of-type {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+  &-item:nth-child(1) {
+    background: #F2F5F9;
+    .n-timeline-item-timeline__circle {
+      border-color: #1F2D3D	 !important;
+    }
+  } /* 周一 */
+  &-item:nth-child(2) {
+    background: #E3EDF7;
+    .n-timeline-item-timeline__circle {
+      border-color: #1A293B	 !important;
+    }
+  } /* 周二 */
+  &-item:nth-child(3) {
+    background: #E1F3F1;
+    .n-timeline-item-timeline__circle {
+      border-color: #1E3A36	 !important;
+    }
+  } /* 周三 */
+  &-item:nth-child(4) {
+    background: #E9F6E5;
+    .n-timeline-item-timeline__circle {
+      border-color: #2C3E22	 !important;
+    }
+  } /* 周四 */
+  &-item:nth-child(5) {
+    background: #FCF7DC;
+    .n-timeline-item-timeline__circle {
+      border-color: #5A4E1E	 !important;
+    }
+  } /* 周五 */
+  &-item:nth-child(6) {
+    background: #FDEEDC;
+    .n-timeline-item-timeline__circle {
+      border-color: #5C3A1E	 !important;
+    }
+  } /* 周六 */
+  &-item:nth-child(7) {
+    background: #FCE8E9;
+    .n-timeline-item-timeline__circle {
+      border-color: #5A1F2D	 !important;
+    }
+  } /* 周日 */
 
   .n-timeline-item {
     padding-top: 12px;
+    &-timeline__circle {
+      margin: 0 auto;
+      margin-top: 18px;
+      width: 16px !important;
+      height: 16px !important;
+    }
+  }
+
+  .n-collapse {
+    --n-title-font-weight: 700 !important;
+    .n-collapse-item-arrow {
+      display: none;
+    }
+    .n-collapse-item__content-inner {
+      padding-top: 0;
+    }
   }
 }
 </style>

@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@date-fns/tz": "^1.2.0",
+    "@dicebear/collection": "^9.2.2",
+    "@dicebear/core": "^9.2.2",
     "@remixicon/vue": "^4.6.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-clipboard-manager": "~2",

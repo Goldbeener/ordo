@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
-import { startOfDay, endOfDay, startOfWeek, endOfWeek, setHours, setMinutes, setSeconds, setMilliseconds} from 'date-fns'
+import { startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, setHours, setMinutes, setSeconds, setMilliseconds} from 'date-fns'
 
 const noteList = ref([]);
 const weeklyNoteList = ref([]);
@@ -22,7 +22,7 @@ async function handleGetTodayNotes() {
   try {
     const today = new Date();
     const notes = await invoke("list_notes", {
-      startDate: startOfDay(today).toISOString(),
+      startDate: startOfDay(subDays(today, 2)).toISOString(),
       endDate: endOfDay(today).toISOString()
     });
     console.log('获取笔记成功', notes);
