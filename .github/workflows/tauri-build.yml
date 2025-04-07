@@ -82,53 +82,74 @@ jobs:
       - name: 确保构建目录存在
         run: mkdir -p release-assets
 
-      - name: 移动 macOS 构建产物（指定路径）
+      - name: 移动 macOS 构建产物（修复版）
         if: matrix.platform == 'macos-latest'
         shell: bash
         run: |
-          # 检查并复制 macos 目录下的所有内容
-          if [ -d "src-tauri/target/release/bundle/macos" ]; then
-            echo "复制 macos 目录的内容..."
-            # 对于 .app 文件，创建压缩包
-            find src-tauri/target/release/bundle/macos -name "*.app" -type d | while read app_path; do
-              app_name=$(basename "$app_path")
-              (cd "$(dirname "$app_path")" && zip -r "../../../../../../../../release-assets/${app_name%.app}.zip" "$app_name")
-            done
+          # 确保目标目录存在
+          mkdir -p release-assets/macos
           
-            # 复制其他文件
-            find src-tauri/target/release/bundle/macos -type f -exec cp {} release-assets/ \;
-          else
-            echo "macos 目录不存在"
-          fi
-          
-          # 检查并复制 dmg 目录下的所有内容
+          # 先简单复制 dmg 文件
           if [ -d "src-tauri/target/release/bundle/dmg" ]; then
             echo "复制 dmg 目录的内容..."
-            cp -r src-tauri/target/release/bundle/dmg/* release-assets/
+            cp -v src-tauri/target/release/bundle/dmg/* release-assets/macos/ || echo "没有找到 DMG 文件"
           else
             echo "dmg 目录不存在"
           fi
           
+          # 复制 .app 并创建压缩包
+          if [ -d "src-tauri/target/release/bundle/macos" ]; then
+            echo "处理 macos 目录下的 .app 文件..."
+            cd src-tauri/target/release/bundle/macos
+          
+            # 列出当前目录内容
+            echo "当前目录内容:"
+            ls -la
+          
+            # 为每个 .app 创建 zip
+            for app in *.app; do
+              if [ -d "$app" ]; then
+                echo "打包 $app 为 zip 文件..."
+                zip -r "${app%.app}.zip" "$app"
+          
+                # 移动生成的 zip 到 release-assets
+                mv "${app%.app}.zip" "$GITHUB_WORKSPACE/release-assets/macos/"
+          
+                # 也把原始 .app 复制到一个压缩包中
+                tar -czf "${app%.app}.tar.gz" "$app"
+                mv "${app%.app}.tar.gz" "$GITHUB_WORKSPACE/release-assets/macos/"
+              fi
+            done
+          
+            # 返回工作目录
+            cd "$GITHUB_WORKSPACE"
+          else
+            echo "macos 目录不存在"
+          fi
+          
           # 确认复制的文件
           echo "release-assets 目录内容:"
-          ls -la release-assets/
+          ls -la release-assets/macos
 
       - name: 移动 Windows 构建产物
         if: matrix.platform == 'windows-latest'
         shell: bash
         run: |
+          # 确保目标目录存在
+          mkdir -p release-assets/windows
+          
           # 复制所有 MSI 和 EXE 安装程序文件
           find src-tauri/target -name "*.msi" -type f -exec cp {} release-assets/ \;
-          find src-tauri/target -name "*.exe" -type f | grep -v "\\\\target\\\\debug\\\\" | grep -v "\\\\deps\\\\" | xargs -I{} cp {} release-assets/ || echo "No EXE installers found"
+          find src-tauri/target -name "*.exe" -type f | grep -v "\\\\target\\\\debug\\\\" | grep -v "\\\\deps\\\\" | xargs -I{} cp {} release-assets/windows/ || echo "No EXE installers found"
           
           # 检查是否成功复制了文件
-          ls -la release-assets/
+          ls -la release-assets/windows/
 
       - name: 上传构建产物
         uses: actions/upload-artifact@v4
         with:
           name: Tauri-Build-${{ matrix.platform }}
-          path: release-assets/*
+          path: release-assets/**/*
 
   release:
     needs: build
