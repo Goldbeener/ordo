@@ -87,50 +87,15 @@ jobs:
         shell: bash
         run: |
           # 确保目标目录存在
-          mkdir -p release-assets/macos/dmg
+          mkdir -p release-assets/macos
           
-          # 先简单复制 dmg 文件
-          if [ -d "src-tauri/target/release/bundle/dmg" ]; then
-            echo "复制 dmg 目录的内容..."
-            cp -v src-tauri/target/release/bundle/dmg/* release-assets/macos/dmg || echo "没有找到 DMG 文件"
-          else
-            echo "dmg 目录不存在"
-          fi
+          cd src-tauri/target/release/
+          zip -r Ordo-macos.zip bundle
+          mv Ordo-macos.zip "$GITHUB_WORKSPACE/release-assets/macos/"
           
-          
-          
-          # 复制 .app 并创建压缩包
-          if [ -d "src-tauri/target/release/bundle/macos" ]; then
-            echo "处理 macos 目录下的 .app 文件..."
-            cd src-tauri/target/release/bundle/macos
-          
-            # 列出当前目录内容
-            echo "当前目录内容:"
-            ls -la
-          
-            # 为每个 .app 创建 zip
-            for app in *.app; do
-              if [ -d "$app" ]; then
-                echo "打包 $app 为 zip 文件..."
-                zip -r "${app%.app}.zip" "$app"
-          
-                # 移动生成的 zip 到 release-assets
-                mv "${app%.app}.zip" "$GITHUB_WORKSPACE/release-assets/macos/"
-          
-                # 也把原始 .app 复制到一个压缩包中
-                tar -czf "${app%.app}.tar.gz" "$app"
-                mv "${app%.app}.tar.gz" "$GITHUB_WORKSPACE/release-assets/macos/"
-              fi
-            done
-          
-            # 返回工作目录
-            cd "$GITHUB_WORKSPACE"
-          else
-            echo "macos 目录不存在"
-          fi
           
           # 确认复制的文件
-          echo "release-assets 目录内容:"
+          echo "release-assets/macos 目录内容:"
           ls -la release-assets/macos
 
       - name: 移动 Windows 构建产物
