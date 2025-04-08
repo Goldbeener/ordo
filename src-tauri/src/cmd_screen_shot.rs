@@ -3,8 +3,9 @@ use std::fs::{self, File};
 use std::io::Write;
 use std::sync::mpsc::{channel, Sender};
 use std::thread;
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 use tauri::{AppHandle, Emitter, Manager};
+use std::path::PathBuf;
 
 // 全局存储截图处理任务通道
 pub struct ScreenshotTaskManager(Sender<ScreenshotTask>);
@@ -35,6 +36,34 @@ pub fn init_screenshot_manager() -> ScreenshotTaskManager {
     ScreenshotTaskManager(sender)
 }
 
+// 删除上次壁纸
+fn cleanup_old_wallpapers(dir: PathBuf, prefix: &str, max_age_minutes: u64) -> std::io::Result<()> {
+    let entries = fs::read_dir(&dir)?;
+    println!("Cleaning up old wallpapers at {}", dir.display());
+
+    for entry in entries {
+        let entry = entry?;
+        let path = entry.path();
+
+        // 只清理我们自己创建的文件
+        if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
+            if file_name.starts_with(prefix) {
+                let metadata = fs::metadata(&path)?;
+                if let Ok(modified) = metadata.modified() {
+                    let age = SystemTime::now()
+                        .duration_since(modified)
+                        .unwrap_or(Duration::ZERO);
+                    if age > Duration::from_secs(max_age_minutes * 60) {
+                        let _ = fs::remove_file(&path); // 忽略删除失败
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
 // 处理单个截图任务
 fn process_screenshot_task(task: ScreenshotTask) -> Result<(), String> {
     let app_handle = task.app_handle.clone();
@@ -52,6 +81,8 @@ fn process_screenshot_task(task: ScreenshotTask) -> Result<(), String> {
     }
 
     println!("存储截图路径, {}!", full_path.display());
+    // 保存之前先删除以前的临时文件
+    // cleanup_old_wallpapers(full_path.clone(),"wallpaper-", 30).unwrap();
 
     // 将Base64数据解码为图像数据
     let image_data = general_purpose::STANDARD

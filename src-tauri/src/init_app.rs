@@ -1,5 +1,10 @@
 use std::sync::Mutex;
-use tauri::{App, Manager, PhysicalPosition, PhysicalSize, Position};
+use tauri::{
+    App, Manager, PhysicalPosition, PhysicalSize, Position, WindowEvent, Runtime, WebviewWindow,
+    menu::{Menu, MenuItem},
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent, TrayIcon},
+};
+
 
 use crate::db::NoteDatabase;
 
@@ -14,6 +19,7 @@ pub fn initialize_app(app: &mut App) -> Result<(), anyhow::Error> {
     let window = app.get_webview_window("main").unwrap();
 
     configure_window(window)?;
+    setup_system_tray(&app.app_handle())?;
 
     Ok(())
 }
@@ -39,6 +45,124 @@ fn configure_window(window: tauri::WebviewWindow) -> Result<(), anyhow::Error> {
     window
         .set_position(Position::Physical(PhysicalPosition::new(x, y)))
         .unwrap();
+
+    Ok(())
+}
+
+/// 创建托盘菜单
+fn create_tray_menu<R: Runtime>(app: &tauri::AppHandle<R>) -> Result<Menu<R>, tauri::Error> {
+    // 创建菜单项
+    let quit_item = MenuItem::new(app, "退出", true, None::<&str>)?;
+    let show_item = MenuItem::new(app,  "显示窗口", true, None::<&str>)?;
+    let hide_item = MenuItem::new(app,  "隐藏窗口", true, None::<&str>)?;
+
+    // 创建菜单并添加菜单项
+    let menu = Menu::new(app)?;
+    menu.append(&show_item)?;
+    menu.append(&hide_item)?;
+    menu.append(&quit_item)?;
+
+    Ok(menu)
+}
+
+/// 配置菜单事件处理
+fn handle_menu_events<R: Runtime>(app: &tauri::AppHandle<R>, event_id: &str) {
+    match event_id {
+        "quit" => {
+            println!("退出按钮被点击");
+            app.exit(0);
+        }
+        "show" => {
+            println!("显示窗口按钮被点击");
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }
+        "hide" => {
+            println!("隐藏窗口按钮被点击");
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.hide();
+            }
+        }
+        _ => {
+            println!("菜单项 {:?} 未处理", event_id);
+        }
+    }
+}
+
+/// 配置托盘图标事件处理
+fn handle_tray_events<R: Runtime>(tray: &TrayIcon<R>, event: TrayIconEvent) {
+    match event {
+        TrayIconEvent::Click {
+            button: MouseButton::Left,
+            button_state: MouseButtonState::Up,
+            ..
+        } => {
+            println!("托盘图标被左键点击");
+            toggle_window_visibility(tray.app_handle().clone());
+        }
+        TrayIconEvent::DoubleClick { .. } => {
+            println!("托盘图标被双击");
+        }
+        TrayIconEvent::Enter { .. } => {
+            println!("鼠标进入托盘图标区域");
+        }
+        TrayIconEvent::Leave { .. } => {
+            println!("鼠标离开托盘图标区域");
+        }
+        _ => {}
+    }
+}
+
+/// 切换窗口可见性
+fn toggle_window_visibility<R: Runtime>(app: tauri::AppHandle<R>) {
+    if let Some(window) = app.get_webview_window("main") {
+        if window.is_visible().unwrap_or(false) {
+            let _ = window.hide();
+        } else {
+            let _ = window.show();
+            let _ = window.set_focus();
+        }
+    }
+}
+
+/// 设置窗口最小化到托盘
+fn setup_window_to_tray<R: Runtime>(window: &WebviewWindow<R>, app_handle: tauri::AppHandle<R>) {
+    let app_handle_clone = app_handle.clone();
+    window.on_window_event(move |event| {
+        if let WindowEvent::CloseRequested { api, .. } = event {
+            // 阻止窗口真正关闭
+            api.prevent_close();
+            // 隐藏窗口
+            if let Some(window) = app_handle_clone.get_webview_window("main") {
+                let _ = window.hide();
+            }
+        }
+    });
+}
+
+/// 创建系统托盘
+fn setup_system_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> Result<(), tauri::Error> {
+    // 创建托盘菜单
+    let menu = create_tray_menu(app)?;
+
+    // 配置和创建托盘
+    let _tray = TrayIconBuilder::new()
+        .icon(app.default_window_icon().unwrap().clone())
+        .tooltip("我的 Tauri 应用")
+        .menu(&menu)
+        .menu_on_left_click(false) // 只在右键点击时显示菜单
+        .on_menu_event(|app, event| {
+            handle_menu_events(app, (&event.id).as_ref());
+        })
+        .on_tray_icon_event(handle_tray_events)
+        .build(app)?;
+
+    // 获取主窗口并设置关闭时最小化到托盘
+    if let Some(window) = app.get_webview_window("main") {
+        setup_window_to_tray(&window, app.clone());
+    }
 
     Ok(())
 }

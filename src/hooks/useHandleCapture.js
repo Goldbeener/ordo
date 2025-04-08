@@ -13,7 +13,7 @@ export default  function useHandleCapture() {
             console.log('??? 正在处理截图...');
 
             const result = await captureElementToImage(targetElement.value.$el, {
-                filePrefix: 'dashboard',
+                filePrefix: 'wallpaper',
                 format: 'png',
                 quality: 0.95,
                 scale: 3, // 3倍分辨率，生成2K以上图片
