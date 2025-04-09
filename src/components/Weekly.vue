@@ -52,6 +52,9 @@ function formatTime(dateString) {
 :deep(.n-timeline) {
 
   &-item {
+    padding-top: 0px !important;
+  }
+  &-item:first-of-type {
     padding-top: 20px !important;
   }
   &-item:first-of-type {
@@ -66,6 +69,7 @@ function formatTime(dateString) {
     background: #F2F5F9;
     .n-timeline-item-timeline__circle {
       border-color: #1F2D3D	 !important;
+      margin-top: 18px !important;
     }
   } /* 周一 */
   &-item:nth-child(2) {
@@ -107,11 +111,21 @@ function formatTime(dateString) {
 
   .n-timeline-item {
     padding-top: 12px;
+    &-timeline__line {
+      left: 12px !important;
+      &:first-of-type {
+        top: 34px !important;
+      }
+    }
     &-timeline__circle {
       margin: 0 auto;
-      margin-top: 18px;
       width: 16px !important;
       height: 16px !important;
+      &::after {
+        display: block;
+        content: ' ';
+        width: 2px;
+      }
     }
   }
 
