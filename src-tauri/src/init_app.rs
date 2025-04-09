@@ -139,9 +139,12 @@ fn setup_system_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> Result<(), tauri:
     // 创建托盘菜单
     let menu = create_tray_menu(app)?;
 
+    let iconPath = std::path::Path::new("icons/icon-tray.png");
+    let image = tauri::image::Image::from_path(iconPath)?;
+
     // 配置和创建托盘
     let _tray = TrayIconBuilder::new()
-        .icon(app.default_window_icon().unwrap().clone())
+        .icon(image)
         .tooltip("Ordo日记")
         .menu(&menu)
         .show_menu_on_left_click(false)
