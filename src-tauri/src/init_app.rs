@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::sync::Mutex;
 use tauri::{
     App, Manager, PhysicalPosition, PhysicalSize, Position, WindowEvent, Runtime, WebviewWindow,
@@ -52,9 +53,9 @@ fn configure_window(window: tauri::WebviewWindow) -> Result<(), anyhow::Error> {
 /// 创建托盘菜单
 fn create_tray_menu<R: Runtime>(app: &tauri::AppHandle<R>) -> Result<Menu<R>, tauri::Error> {
     // 创建菜单项
-    let quit_item = MenuItem::new(app, "退出", true, None::<&str>)?;
-    let show_item = MenuItem::new(app,  "显示窗口", true, None::<&str>)?;
-    let hide_item = MenuItem::new(app,  "隐藏窗口", true, None::<&str>)?;
+    let quit_item = MenuItem::with_id(app, 'q', "退出", true, None::<&str>)?;
+    let show_item = MenuItem::with_id(app, 's', "显示窗口", true, None::<&str>)?;
+    let hide_item = MenuItem::with_id(app, 'h', "隐藏窗口", true, None::<&str>)?;
 
     // 创建菜单并添加菜单项
     let menu = Menu::new(app)?;
@@ -68,18 +69,18 @@ fn create_tray_menu<R: Runtime>(app: &tauri::AppHandle<R>) -> Result<Menu<R>, ta
 /// 配置菜单事件处理
 fn handle_menu_events<R: Runtime>(app: &tauri::AppHandle<R>, event_id: &str) {
     match event_id {
-        "quit" => {
+        "q" => {
             println!("退出按钮被点击");
             app.exit(0);
         }
-        "show" => {
+        "s" => {
             println!("显示窗口按钮被点击");
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.show();
                 let _ = window.set_focus();
             }
         }
-        "hide" => {
+        "h" => {
             println!("隐藏窗口按钮被点击");
             if let Some(window) = app.get_webview_window("main") {
                 let _ = window.hide();
@@ -101,15 +102,6 @@ fn handle_tray_events<R: Runtime>(tray: &TrayIcon<R>, event: TrayIconEvent) {
         } => {
             println!("托盘图标被左键点击");
             toggle_window_visibility(tray.app_handle().clone());
-        }
-        TrayIconEvent::DoubleClick { .. } => {
-            println!("托盘图标被双击");
-        }
-        TrayIconEvent::Enter { .. } => {
-            println!("鼠标进入托盘图标区域");
-        }
-        TrayIconEvent::Leave { .. } => {
-            println!("鼠标离开托盘图标区域");
         }
         _ => {}
     }
@@ -150,9 +142,9 @@ fn setup_system_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> Result<(), tauri:
     // 配置和创建托盘
     let _tray = TrayIconBuilder::new()
         .icon(app.default_window_icon().unwrap().clone())
-        .tooltip("我的 Tauri 应用")
+        .tooltip("Ordo日记")
         .menu(&menu)
-        .menu_on_left_click(false) // 只在右键点击时显示菜单
+        .show_menu_on_left_click(false)
         .on_menu_event(|app, event| {
             handle_menu_events(app, (&event.id).as_ref());
         })

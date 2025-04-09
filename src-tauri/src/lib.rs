@@ -25,6 +25,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(screenshot_manager)
         .setup(|app| {
+
             let _ = init_app::initialize_app(app);
 
             // 确保应用数据目录中的screenshots文件夹存在
