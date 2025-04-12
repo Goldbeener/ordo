@@ -6,11 +6,15 @@ mod cmd_wallpaper;
 mod db;
 mod generate_wallpaper;
 mod init_app;
+// mod clock;
+
+mod cmd_toggle_collapse;
 
 use cmd_note_manage::{create_note, delete_note, list_notes, update_note};
 use cmd_screen_shot::{init_screenshot_manager, save_screenshot};
 use cmd_toggle_layer::toggle_always_on_top;
 use cmd_wallpaper::gen_set_wallpaper;
+use cmd_toggle_collapse::{ expand_window, collapse_window };
 
 use std::fs;
 use tauri::Manager;
@@ -42,6 +46,8 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
             toggle_always_on_top,
+            expand_window,
+            collapse_window,
             create_note,
             delete_note,
             list_notes,

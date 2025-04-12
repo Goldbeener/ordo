@@ -139,8 +139,8 @@ fn setup_system_tray<R: Runtime>(app: &tauri::AppHandle<R>) -> Result<(), tauri:
     // 创建托盘菜单
     let menu = create_tray_menu(app)?;
 
-    let iconPath = std::path::Path::new("icons/icon-tray.png");
-    let image = tauri::image::Image::from_path(iconPath)?;
+    let icon_path = std::path::Path::new("icons/icon-tray.png");
+    let image = tauri::image::Image::from_path(icon_path)?;
 
     // 配置和创建托盘
     let _tray = TrayIconBuilder::new()
