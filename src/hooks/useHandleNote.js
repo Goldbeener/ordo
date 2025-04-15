@@ -22,7 +22,7 @@ async function handleGetTodayNotes() {
   try {
     const today = new Date();
     const notes = await invoke("list_notes", {
-      startDate: startOfDay(subDays(today, 2)).toISOString(),
+      startDate: startOfDay(subDays(today, 3)).toISOString(),
       endDate: endOfDay(today).toISOString()
     });
     console.log('获取笔记成功', notes);
