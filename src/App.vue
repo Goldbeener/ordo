@@ -4,7 +4,7 @@
       <div data-tauri-drag-region class="w-full h-7 cursor-move text-center leading-7 font-bold gradient-text">
         Ordo
       </div>
-      <div  class="w-screen h-screen flex flex-col items-center">
+      <div  class="w-screen px-4 h-screen flex flex-col items-center">
         <header class="w-full bg-white px-3 h-[56px] rounded-md">
           <TopBar @create-note="handleCreateNote" @switch="(idx) => currentIndex = idx"/>
         </header>
@@ -14,11 +14,10 @@
   </n-notification-provider>
 
   <!--  折叠图标 -->
-    <div class="toggle-wrapper fixed -left-1 top-1/2 -translate-y-1/2" @click="handleToggleCollapse">
-      <transition name="fade">
-          <RiArrowRightDoubleFill v-if="!isCollapsed" size="24" color="#FFD700"/>
-          <RiArrowLeftDoubleFill v-else size="24" color="#FFD700"/>
-      </transition>
+    <div class="toggle-wrapper w-5 h-28 bg-yellow-400 rounded-lg fixed -left-1 top-1/2 -translate-y-1/2 flex items-center"
+         @click="handleToggleCollapse">
+      <RiArrowRightDoubleFill v-if="!isCollapsed" size="24"/>
+      <RiArrowLeftDoubleFill v-else size="24" />
     </div>
 
 </template>
@@ -93,25 +92,5 @@ async function handleToggleCollapse() {
     white-space: nowrap;
     background-image: linear-gradient(var(--n-rotate), var(--n-color-start) 0%, var(--n-color-end) 100%);
     transition: --n-color-start .3s var(--n-bezier), --n-color-end .3s var(--n-bezier);
-  }
-
-
-  .fade-enter-active,
-  .fade-leave-active {
-    opacity: 1;
-    transition: width 0.5s ease;
-  }
-
-  .fade-enter-from,
-  .fade-leave-to {
-    opacity: 0;
-  }
-
-  .fade-enter-active {
-    transition-delay: 0.5s; /* 延迟出现 */
-  }
-
-  .fade-leave-active {
-    transition-delay: unset; /* 延迟消失 */
   }
 </style>
