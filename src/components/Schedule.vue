@@ -7,7 +7,7 @@
         <div class="text-sm">{{ schedule.description }}</div>
       </div>
       <div class="col-span-3 flex flex-col justify-center">
-        <div class="text-sm">{{ repeatOptionMap[schedule.repeat_type] || '不重复' }}</div>
+        <div class="text-sm">{{ formatRepeat(schedule) }}</div>
         <div class="text-sm">{{ formatDate(schedule) }}</div>
       </div>
       <div class="col-span-1 flex flex-col justify-center items-end">
@@ -24,7 +24,7 @@
 
 <script setup>
 import {invoke} from '@tauri-apps/api/core';
-import {format} from 'date-fns';
+import {format, getDay, getDate} from 'date-fns';
 import {RiMore2Fill} from '@remixicon/vue'
 
 defineExpose({loadSchedule})
@@ -44,6 +44,7 @@ const options = [
     key: 'edit'
   },
 ]
+const weekDays = ['一', '二', '三', '四', '五', '六', '日']
 
 loadSchedule()
 
@@ -51,6 +52,17 @@ async function loadSchedule() {
   const data = await invoke('get_schedules', {})
   console.log('???已设置的提醒事项', data);
   scheduleList.value = data;
+}
+
+function formatRepeat(schedule) {
+  const {datetime, repeat_type} = schedule;
+  const date = new Date(datetime);
+  if (repeat_type === 'weekly') {
+    return repeatOptionMap[repeat_type] + weekDays[getDay(date) - 1];
+  } else if (repeat_type === 'monthly') {
+    return repeatOptionMap[repeat_type] + getDate(date) + '号';
+  }
+  return '不重复'
 }
 
 function formatDate(schedule) {
