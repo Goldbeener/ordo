@@ -6,8 +6,10 @@ mod cmd_wallpaper;
 mod db;
 mod generate_wallpaper;
 mod init_app;
-// mod clock;
 
+mod db_timer;
+
+mod cmd_schedule;
 mod cmd_toggle_collapse;
 
 use cmd_note_manage::{create_note, delete_note, list_notes, update_note};
@@ -15,6 +17,7 @@ use cmd_screen_shot::{init_screenshot_manager, save_screenshot};
 use cmd_toggle_layer::toggle_always_on_top;
 use cmd_wallpaper::gen_set_wallpaper;
 use cmd_toggle_collapse::{ expand_window, collapse_window };
+use cmd_schedule::{add_schedule, get_schedules, delete_schedule, init_timer_db};
 
 use std::fs;
 use tauri::Manager;
@@ -31,6 +34,9 @@ pub fn run() {
         .setup(|app| {
 
             let _ = init_app::initialize_app(app);
+
+            // 初始化定时任务
+            init_timer_db(app)?;
 
             // 确保应用数据目录中的screenshots文件夹存在
             let app_data_dir = app
@@ -53,7 +59,10 @@ pub fn run() {
             list_notes,
             update_note,
             save_screenshot,
-            gen_set_wallpaper
+            gen_set_wallpaper,
+            add_schedule,
+            get_schedules,
+            delete_schedule,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -30,7 +30,7 @@ anyhow = "1.0"
 base64 = "0.22.1"
 tauri-plugin-clipboard-manager = "2"
 tauri-plugin-notification = "2"
-tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+tokio = { version = "1", features = ["full"] }
 
 [profile.dev.package.objc2]
 debug-assertions = false
