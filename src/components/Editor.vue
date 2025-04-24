@@ -8,7 +8,8 @@
       <button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">
         加粗
       </button>
-      <button @click="editor.chain().focus().setColor('#f60').run()">
+      <button @click="handleToggleColor"
+              :class="{ 'is-active': editor.isActive('textStyle', { color: '#ff6600' })}">
         标红
       </button>
       <button @click="editor.chain().focus().toggleStrike().run()" :class="{ 'is-active': editor.isActive('strike') }">
@@ -30,6 +31,7 @@ import TaskList from '@tiptap/extension-task-list'
 import Paragraph from '@tiptap/extension-paragraph'
 import {Color} from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
+import Bold from '@tiptap/extension-bold'
 
 
 const props = defineProps({
@@ -61,8 +63,9 @@ const editor = useEditor({
     TaskItem.configure({
       nested: true,
     }),
-    TextStyle,
-    Color
+    TextStyle.configure({mergeNestedSpanStyles: true}),
+    Color,
+    Bold
   ],
   editorProps: {
     attributes: {
@@ -78,25 +81,39 @@ const editor = useEditor({
 function getEditorText() {
   return editor.value.getText()
 }
+
+function handleToggleColor() {
+  const color = '#ff6600';
+  if (editor.value.isActive('textStyle', {color})) {
+    editor.value.chain().focus().unsetColor().run()
+  } else {
+    editor.value.chain().focus().setColor(color).run()
+  }
+}
 </script>
 
 <style lang="less">
 @import url('../styles/editor.less');
 
+.prose :where(strong):not(:where([class~="not-prose"],[class~="not-prose"] *)) {
+  color: inherit !important;
+}
+
 .bubble-menu {
   background-color: var(--white);
   border: 1px solid var(--gray-1);
-  border-radius: 0.7rem;
+  border-radius: 11.2px;
   box-shadow: var(--shadow);
   display: flex;
-  padding: 0.2rem;
+  padding: 3.2px;
 
   button {
-    background-color: var(--gray-2);
-    border-radius: .5rem;
-    font-size: .875rem;
+    border-radius: 8px;
+    color: var(--black) !important;
+    font-size: 14px;
+    font-weight: 500;
     line-height: 1.15;
-    padding: .375rem .625rem;
+    padding: 6px 10px;
     transition: all .2s cubic-bezier(.65, .05, .36, 1);
 
     &:hover {
@@ -104,11 +121,7 @@ function getEditorText() {
     }
 
     &.is-active {
-      background-color: var(--purple);
-
-      &:hover {
-        background-color: var(--purple-contrast);
-      }
+      background-color: var(--theme);
     }
   }
 }
