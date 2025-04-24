@@ -31,7 +31,6 @@ import TaskList from '@tiptap/extension-task-list'
 import Paragraph from '@tiptap/extension-paragraph'
 import {Color} from '@tiptap/extension-color'
 import TextStyle from '@tiptap/extension-text-style'
-import Bold from '@tiptap/extension-bold'
 
 
 const props = defineProps({
@@ -65,7 +64,6 @@ const editor = useEditor({
     }),
     TextStyle.configure({mergeNestedSpanStyles: true}),
     Color,
-    Bold
   ],
   editorProps: {
     attributes: {

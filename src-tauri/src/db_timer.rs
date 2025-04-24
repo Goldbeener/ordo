@@ -62,7 +62,7 @@ impl DbTimer {
         let mut stmt = self.conn.prepare(
             "SELECT id, name, description, datetime, repeat_type, created_at, updated_at
             FROM schedules
-            ORDER BY datetime",
+            ORDER BY created_at DESC",
         )?;
 
         let schedule_iter = stmt.query_map([], |row| {
