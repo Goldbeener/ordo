@@ -1,6 +1,19 @@
 <template>
   <div class="container w-screen flex flex-col items-center py-[32px] px-[16px]">
-    <div v-html="svg" class="mb-6" @click="generateAvatar()"></div>
+    <div class="w-full rounded-lg p-5 flex items-center mb-6 bg-white">
+      <div v-html="svg" class="mr-5" @click="generateAvatar()"></div>
+      <div class="flex items-center flex-1">
+        <div class="p-2 flex flex-col items-center mr-4">
+          <div>66</div>
+          <div>笔记数</div>
+        </div>
+        <div class="p-2 flex flex-col items-center">
+          <div>99</div>
+          <div>点子数</div>
+        </div>
+      </div>
+    </div>
+
     <n-collapse class="bg-white" default-expanded-names="1" accordion :trigger-areas="['main']">
       <n-collapse-item title="定时任务" name="1">
         <template #header-extra>
@@ -15,11 +28,11 @@
           <Schedule ref="scheduleRef"></Schedule>
         </div>
       </n-collapse-item>
-      <n-collapse-item title="还没想好要干啥" name="2">
+      <n-collapse-item title="番茄时钟" name="2">
         <template #arrow>
           <RiQuestionLine/>
         </template>
-        <div>还有啥功能集成呢？</div>
+        <div>开启番茄时钟</div>
       </n-collapse-item>
     </n-collapse>
   </div>
