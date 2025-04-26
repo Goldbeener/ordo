@@ -1,41 +1,53 @@
 <template>
-  <div  class="w-full h-auto p-[20px] pb-[4px] rounded-xl bg-white">
+  <div class="w-full h-auto p-[20px] pb-[4px] rounded-xl bg-white">
     <Editor
         ref="targetElement"
-      :content="note.content"
-      @update="(content) => updateNote({ id: note.id, content })"
+        :content="note.content"
+        @update="(content) => updateNote({ id: note.id, content })"
     />
     <div class="toolbar flex h-[36px] items-center justify-end">
       <span class="text-sm mr-auto">{{ formatDate(note.create_time) }}</span>
       <div
-        class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
-        @click="handleCopyNote"
+          class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
+          @click="handleCopyNote"
       >
         <n-tooltip trigger="hover">
           <template #trigger>
-            <RiFileCopyLine size="16px" />
+            <RiFileCopyLine size="16px"/>
           </template>
           复制笔记文本
         </n-tooltip>
       </div>
       <div
-        class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
-        @click="handleCaptureScreenshot"
+          class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
+          @click="handleCollectNote"
       >
         <n-tooltip trigger="hover">
           <template #trigger>
-            <RiComputerLine size="16px" />
+            <RiStarFill v-if="note.tags" size="16px" color=""/>
+            <RiStarLine v-else size="16px"/>
+          </template>
+          收藏笔记
+        </n-tooltip>
+      </div>
+      <div
+          class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
+          @click="handleCaptureScreenshot"
+      >
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <RiComputerLine size="16px"/>
           </template>
           将此笔记设置为壁纸
         </n-tooltip>
       </div>
       <div
-        class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
-        @click="handleDeleteNote"
+          class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
+          @click="handleDeleteNote"
       >
         <n-tooltip trigger="hover">
           <template #trigger>
-            <RiDeleteBin6Line size="16px" />
+            <RiDeleteBin6Line size="16px"/>
           </template>
           删除笔记
         </n-tooltip>
@@ -46,23 +58,25 @@
 </template>
 
 <script setup>
-import { debounce } from 'lodash-es';
-import { format, parseISO } from 'date-fns';
-import { useNotification } from 'naive-ui';
+import {debounce} from 'lodash-es';
+import {format, parseISO} from 'date-fns';
+import {useNotification} from 'naive-ui';
 import {
   RiFileCopyLine,
   RiComputerLine,
   RiDeleteBin6Line,
+  RiStarLine,
+  RiStarFill
 } from '@remixicon/vue';
-import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import {writeText} from '@tauri-apps/plugin-clipboard-manager';
 
 
 import Editor from './Editor.vue';
 import useHandleNote from '../hooks/useHandleNote';
 import useHandleCapture from '../hooks/useHandleCapture.js'
 
-const { handleUpdateNote, handleDeleteNote: handleDelete } = useHandleNote();
-const { targetElement,  captureToFile } = useHandleCapture();
+const {handleUpdateNote, handleMarkNote, handleDeleteNote: handleDelete} = useHandleNote();
+const {targetElement, captureToFile} = useHandleCapture();
 const notification = useNotification()
 
 
@@ -90,6 +104,12 @@ async function handleCopyNote() {
     content: '复制成功！',
     duration: 2000
   })
+}
+
+async function handleCollectNote() {
+  const tags = props.note.tags ? null : ['mark'];
+  await handleMarkNote({...props.note, tags})
+  props.note.tags = tags
 }
 
 async function handleDeleteNote() {

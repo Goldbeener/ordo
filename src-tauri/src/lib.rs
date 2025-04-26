@@ -12,12 +12,12 @@ mod db_timer;
 mod cmd_schedule;
 mod cmd_toggle_collapse;
 
-use cmd_note_manage::{create_note, delete_note, list_notes, update_note};
+use cmd_note_manage::{create_note, delete_note, list_notes, list_tagged_notes, update_note};
+use cmd_schedule::{add_schedule, delete_schedule, get_schedules, init_timer_db};
 use cmd_screen_shot::{init_screenshot_manager, save_screenshot};
+use cmd_toggle_collapse::{collapse_window, expand_window};
 use cmd_toggle_layer::toggle_always_on_top;
 use cmd_wallpaper::gen_set_wallpaper;
-use cmd_toggle_collapse::{ expand_window, collapse_window };
-use cmd_schedule::{add_schedule, get_schedules, delete_schedule, init_timer_db};
 
 use std::fs;
 use tauri::Manager;
@@ -32,7 +32,6 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .manage(screenshot_manager)
         .setup(|app| {
-
             let _ = init_app::initialize_app(app);
 
             // 初始化定时任务
@@ -57,6 +56,7 @@ pub fn run() {
             create_note,
             delete_note,
             list_notes,
+            list_tagged_notes,
             update_note,
             save_screenshot,
             gen_set_wallpaper,

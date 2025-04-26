@@ -39,10 +39,10 @@ const options = [
     label: '删除',
     key: 'delete'
   },
-  {
-    label: '编辑',
-    key: 'edit'
-  },
+  // {
+  //   label: '编辑',
+  //   key: 'edit'
+  // },
 ]
 const weekDays = ['一', '二', '三', '四', '五', '六', '日']
 

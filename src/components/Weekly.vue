@@ -1,9 +1,9 @@
 <template>
-  <div class="h-full w-full flex px-4 py-8 overflow-scroll">
+  <div class="h-full w-full flex py-8 overflow-scroll">
     <n-timeline>
       <n-timeline-item v-for="(dayNotes, key) in timeLineData" :key="key">
         <n-collapse :default-expanded-names="['1']">
-          <n-collapse-item  :title="key" name="1">
+          <n-collapse-item :title="key" name="1">
             <Editor v-for="note in dayNotes" :content="note.content" :editable="false"/>
           </n-collapse-item>
         </n-collapse>
@@ -13,13 +13,13 @@
 </template>
 
 <script setup>
-import { parseISO, getDay, format } from 'date-fns'
+import {parseISO, getDay, format} from 'date-fns'
 
 import Editor from "./Editor.vue";
 
 import useHandleNote from "../hooks/useHandleNote.js";
 
-const { weeklyNoteList, handleGetWeeklyNotes } = useHandleNote();
+const {weeklyNoteList, handleGetWeeklyNotes} = useHandleNote();
 const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
 
 // 格式化数据 按天聚合
@@ -29,7 +29,7 @@ const timeLineData = computed(() => {
       .filter(note => note.content.trim())
       .forEach(note => {
         const weekday = weekDays[getDay(parseISO(note.create_time))];
-        if(!result[weekday]) {
+        if (!result[weekday]) {
           result[weekday] = [note]
         } else {
           result[weekday].push(note)
@@ -54,73 +54,108 @@ function formatTime(dateString) {
   &-item {
     padding-top: 0px !important;
   }
+
   &-item:first-of-type {
     padding-top: 20px !important;
   }
+
   &-item:first-of-type {
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
   }
+
   &-item:last-of-type {
     border-bottom-left-radius: 12px;
     border-bottom-right-radius: 12px;
   }
+
   &-item:nth-child(1) {
     background: #F2F5F9;
+
     .n-timeline-item-timeline__circle {
-      border-color: #1F2D3D	 !important;
+      border-color: #1F2D3D !important;
       margin-top: 18px !important;
     }
-  } /* 周一 */
+  }
+
+  /* 周一 */
+
   &-item:nth-child(2) {
     background: #E3EDF7;
+
     .n-timeline-item-timeline__circle {
-      border-color: #1A293B	 !important;
+      border-color: #1A293B !important;
     }
-  } /* 周二 */
+  }
+
+  /* 周二 */
+
   &-item:nth-child(3) {
     background: #E1F3F1;
+
     .n-timeline-item-timeline__circle {
-      border-color: #1E3A36	 !important;
+      border-color: #1E3A36 !important;
     }
-  } /* 周三 */
+  }
+
+  /* 周三 */
+
   &-item:nth-child(4) {
     background: #E9F6E5;
+
     .n-timeline-item-timeline__circle {
-      border-color: #2C3E22	 !important;
+      border-color: #2C3E22 !important;
     }
-  } /* 周四 */
+  }
+
+  /* 周四 */
+
   &-item:nth-child(5) {
     background: #FCF7DC;
+
     .n-timeline-item-timeline__circle {
-      border-color: #5A4E1E	 !important;
+      border-color: #5A4E1E !important;
     }
-  } /* 周五 */
+  }
+
+  /* 周五 */
+
   &-item:nth-child(6) {
     background: #FDEEDC;
+
     .n-timeline-item-timeline__circle {
-      border-color: #5C3A1E	 !important;
+      border-color: #5C3A1E !important;
     }
-  } /* 周六 */
+  }
+
+  /* 周六 */
+
   &-item:nth-child(7) {
     background: #FCE8E9;
+
     .n-timeline-item-timeline__circle {
-      border-color: #5A1F2D	 !important;
+      border-color: #5A1F2D !important;
     }
-  } /* 周日 */
+  }
+
+  /* 周日 */
 
   .n-timeline-item {
     padding-top: 12px;
+
     &-timeline__line {
       left: 12px !important;
+
       &:first-of-type {
         top: 34px !important;
       }
     }
+
     &-timeline__circle {
       margin: 0 auto;
       width: 16px !important;
       height: 16px !important;
+
       &::after {
         display: block;
         content: ' ';
@@ -131,9 +166,11 @@ function formatTime(dateString) {
 
   .n-collapse {
     --n-title-font-weight: 700 !important;
+
     .n-collapse-item-arrow {
       display: none;
     }
+
     .n-collapse-item__content-inner {
       padding-top: 0;
     }

@@ -1,6 +1,7 @@
 // src/commands.rs
 use crate::db::{Note, NoteDatabase};
 use chrono::{DateTime, Utc};
+use serde::{Serialize};
 use std::sync::Mutex;
 use tauri::{command, State};
 
@@ -89,4 +90,41 @@ pub async fn list_notes(
         .map_err(|_| "Failed to acquire database lock".to_string())?
         .list_notes(start, end)
         .map_err(|e| e.to_string())
+}
+
+// 返回前端的分页数据结构
+#[derive(Serialize)]
+pub struct PaginatedResponse<T> {
+    pub data: Vec<T>,
+    pub total: usize,
+    pub page: usize,
+    pub page_size: usize,
+    pub total_pages: usize,
+}
+#[command]
+pub fn list_tagged_notes(
+    db: State<'_, Mutex<NoteDatabase>>,
+    page_size: usize,
+    page: usize
+) -> Result<PaginatedResponse<Note>, String> {
+    let db_ins = db.lock().expect("Failed to lock database");
+
+    // 调用之前实现的list_tag_notes方法
+    let (notes, total_count) = db_ins
+        .list_tag_notes(page, page_size)
+        .map_err(|e| format!("Failed to get tagged notes: {}", e))?;
+
+    // 计算总页数
+    let total_pages = (total_count + page_size - 1) / page_size;
+
+    // 构建分页响应
+    let response = PaginatedResponse {
+        data: notes,
+        total: total_count,
+        page,
+        page_size,
+        total_pages,
+    };
+
+    Ok(response)
 }
