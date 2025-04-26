@@ -3,10 +3,23 @@
     <Editor
         ref="targetElement"
         :content="note.content"
+        placeholder="记录日常的待办"
         @update="(content) => updateNote({ id: note.id, content })"
     />
     <div class="toolbar flex h-[36px] items-center justify-end">
       <span class="text-sm mr-auto">{{ formatDate(note.create_time) }}</span>
+      <div
+          class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
+          @click="handleCollectNote"
+      >
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <RiStarFill v-if="note.tags" size="16px" color="#f60"/>
+            <RiStarLine v-else size="16px"/>
+          </template>
+          收藏笔记
+        </n-tooltip>
+      </div>
       <div
           class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
           @click="handleCopyNote"
@@ -16,18 +29,6 @@
             <RiFileCopyLine size="16px"/>
           </template>
           复制笔记文本
-        </n-tooltip>
-      </div>
-      <div
-          class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
-          @click="handleCollectNote"
-      >
-        <n-tooltip trigger="hover">
-          <template #trigger>
-            <RiStarFill v-if="note.tags" size="16px" color=""/>
-            <RiStarLine v-else size="16px"/>
-          </template>
-          收藏笔记
         </n-tooltip>
       </div>
       <div

@@ -1,14 +1,15 @@
 <template>
   <n-notification-provider>
-    <div ref="containerRef" v-show="!isCollapsed">
-      <div data-tauri-drag-region class="w-full h-7 cursor-move text-center leading-7 font-bold gradient-text">
+    <div ref="containerRef" v-show="!isCollapsed" class="h-[100vh] overflow-hidden flex flex-col">
+      <div data-tauri-drag-region
+           class="w-full h-7 cursor-move text-center leading-7  font-bold gradient-text">
         Ordo
       </div>
-      <div class="w-screen px-4 h-screen flex flex-col items-center">
+      <div class="w-screen flex-auto overflow-hidden px-4 flex flex-col items-center">
         <header class="w-full bg-white px-3 h-[56px] rounded-md">
           <TopBar @create-note="handleCreateNote" @switch="(idx) => currentIndex = idx"/>
         </header>
-        <component :is="currentComp"></component>
+        <component :is="currentComp" class="flex-auto"></component>
       </div>
     </div>
   </n-notification-provider>

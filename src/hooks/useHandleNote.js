@@ -31,13 +31,12 @@ async function handleCreateNote() {
 
 async function handleGetTodayNotes() {
     try {
-        const today = new Date();
         const notes = await invoke("list_notes", {
-            startDate: startOfDay(subDays(today, 3)).toISOString(),
-            endDate: endOfDay(today).toISOString()
+            page: 1,
+            pageSize: 10,
         });
         console.log('获取笔记成功', notes);
-        noteList.value = notes;
+        noteList.value = notes.data;
     } catch (error) {
         console.log('获取笔记失败', error);
     }
@@ -54,7 +53,7 @@ async function handleGetWeeklyNotes() {
             setSeconds(setMinutes(setHours(endOfWeek(today, {weekStartsOn: 1}), 23), 59), 59),
             999
         )
-        weeklyNoteList.value = await invoke("list_notes", {
+        weeklyNoteList.value = await invoke("list_notes_by_date", {
             startDate: mondayStart.toISOString(),
             endDate: sundayEnd.toISOString()
         });

@@ -12,7 +12,9 @@ mod db_timer;
 mod cmd_schedule;
 mod cmd_toggle_collapse;
 
-use cmd_note_manage::{create_note, delete_note, list_notes, list_tagged_notes, update_note};
+use cmd_note_manage::{
+    create_note, delete_note, list_notes, list_notes_by_date, list_tagged_notes, update_note,
+};
 use cmd_schedule::{add_schedule, delete_schedule, get_schedules, init_timer_db};
 use cmd_screen_shot::{init_screenshot_manager, save_screenshot};
 use cmd_toggle_collapse::{collapse_window, expand_window};
@@ -57,6 +59,7 @@ pub fn run() {
             delete_note,
             list_notes,
             list_tagged_notes,
+            list_notes_by_date,
             update_note,
             save_screenshot,
             gen_set_wallpaper,

@@ -1,7 +1,7 @@
 <template>
   <div class="top-bar h-full flex items-center">
     <n-tabs type="segment" animated @before-leave="handleSwitch">
-      <n-tab-pane :name="0" tab="今日"></n-tab-pane>
+      <n-tab-pane :name="0" tab="最近"></n-tab-pane>
       <n-tab-pane :name="1" tab="本周"></n-tab-pane>
       <n-tab-pane :name="2" tab="我的"></n-tab-pane>
     </n-tabs>

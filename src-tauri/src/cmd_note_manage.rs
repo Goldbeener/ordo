@@ -67,7 +67,7 @@ pub async fn get_note(db: State<'_, Mutex<NoteDatabase>>, id: i64) -> Result<Opt
 }
 
 #[command]
-pub async fn list_notes(
+pub async fn list_notes_by_date(
     db: State<'_, Mutex<NoteDatabase>>,
     start_date: Option<String>,
     end_date: Option<String>,
@@ -88,8 +88,38 @@ pub async fn list_notes(
 
     db.lock()
         .map_err(|_| "Failed to acquire database lock".to_string())?
-        .list_notes(start, end)
+        .list_notes_by_date(start, end)
         .map_err(|e| e.to_string())
+}
+
+#[command]
+pub async fn list_notes(
+    db: State<'_, Mutex<NoteDatabase>>,
+    page_size: usize,
+    page: usize
+) -> Result<PaginatedResponse<Note>, String> {
+
+
+    let db_ins = db.lock().expect("Failed to lock database");
+
+    // 调用之前实现的list_tag_notes方法
+    let (notes, total_count) = db_ins
+        .list_notes(page, page_size)
+        .map_err(|e| format!("Failed to get tagged notes: {}", e))?;
+
+    // 计算总页数
+    let total_pages = (total_count + page_size - 1) / page_size;
+
+    // 构建分页响应
+    let response = PaginatedResponse {
+        data: notes,
+        total: total_count,
+        page,
+        page_size,
+        total_pages,
+    };
+
+    Ok(response)
 }
 
 // 返回前端的分页数据结构

@@ -40,6 +40,10 @@ const props = defineProps({
   editable: {
     type: Boolean,
     default: true
+  },
+  placeholder: {
+    type: String,
+    default: 'Write something …'
   }
 });
 const emit = defineEmits(['update']);
@@ -56,7 +60,7 @@ const editor = useEditor({
     Highlight,
     Typography,
     Placeholder.configure({
-      placeholder: 'Write something …',
+      placeholder: props.placeholder,
     }),
     TaskList,
     TaskItem.configure({

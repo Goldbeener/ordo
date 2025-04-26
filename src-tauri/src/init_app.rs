@@ -33,7 +33,7 @@ fn configure_window(window: tauri::WebviewWindow) -> Result<(), anyhow::Error> {
     let screen_size = primary_monitor.size();
 
     let fixed_width = 800.0; // 固定宽度
-    let full_height = screen_size.height as f64 - 200.0; // 屏幕高度
+    let full_height = screen_size.height as f64 - 300.0; // 屏幕高度
 
     // 设置窗口大小
     window

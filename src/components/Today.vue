@@ -1,11 +1,7 @@
 <template>
-  <main class="container w-screen overflow-scroll">
-    <div
-        class="w-full py-8 px-4 pb-0"
-        v-for="note in noteList"
-        :key="note.id"
-    >
-      <Card :note="note"/>
+  <main class="container w-screen pt-8 px-4 box-border overflow-hidden">
+    <div class="card-wrapper w-full h-full overflow-scroll">
+      <Card class="mb-4" v-for="note in noteList" :key="note.id" :note="note"/>
     </div>
   </main>
 </template>
@@ -29,5 +25,4 @@ async function init() {
 </script>
 
 <style scoped lang="less">
-
 </style>
