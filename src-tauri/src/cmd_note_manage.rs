@@ -1,9 +1,20 @@
 // src/commands.rs
 use crate::db::{Note, NoteDatabase};
 use chrono::{DateTime, Utc};
-use serde::{Serialize};
+use serde::Serialize;
 use std::sync::Mutex;
 use tauri::{command, State};
+
+#[command]
+pub async fn get_notes_count(db: State<'_, Mutex<NoteDatabase>>) -> Result<(i64, i64), String> {
+    let db_ins = db.lock().expect("failed to get db mutex");
+
+    let total_count = db_ins.get_notes_count().map_err(|e| e.to_string())?;
+
+    let tagged_count = db_ins.get_tagged_notes_count().map_err(|e| e.to_string())?;
+
+    Ok((total_count, tagged_count))
+}
 
 #[command]
 pub async fn create_note(
@@ -11,7 +22,7 @@ pub async fn create_note(
     title: String,
     content: String,
     tags: Option<Vec<String>>,
-) -> Result<i64, String> {
+) -> Result<Option<Note>, String> {
     let note = Note {
         id: None,
         title,
@@ -21,10 +32,15 @@ pub async fn create_note(
         tags,
     };
 
-    db.lock()
+    let note_id = db
+        .lock()
         .map_err(|_| "Failed to acquire database lock".to_string())?
         .create_note(&note)
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+
+    let mut mutable_note = note;
+    mutable_note.id = Some(note_id);
+    Ok(Some(mutable_note))
 }
 
 #[command]
@@ -93,13 +109,39 @@ pub async fn list_notes_by_date(
 }
 
 #[command]
+pub async fn list_notes_by_id(
+    db: State<'_, Mutex<NoteDatabase>>,
+    page_size: usize,
+    last_id: Option<i64>,
+) -> Result<PaginatedResponse<Note>, String> {
+    let db_ins = db.lock().expect("Failed to lock database");
+
+    // 调用之前实现的list_tag_notes方法
+    let (notes, total_count) = db_ins
+        .list_notes_by_id(last_id, page_size)
+        .map_err(|e| format!("Failed to get tagged notes: {}", e))?;
+
+    // 计算总页数
+    let total_pages = (total_count + page_size - 1) / page_size;
+
+    // 构建分页响应
+    let response = PaginatedResponse {
+        data: notes,
+        total: total_count,
+        page: 0,
+        page_size,
+        total_pages,
+    };
+
+    Ok(response)
+}
+
+#[command]
 pub async fn list_notes(
     db: State<'_, Mutex<NoteDatabase>>,
     page_size: usize,
-    page: usize
+    page: usize,
 ) -> Result<PaginatedResponse<Note>, String> {
-
-
     let db_ins = db.lock().expect("Failed to lock database");
 
     // 调用之前实现的list_tag_notes方法
@@ -132,10 +174,10 @@ pub struct PaginatedResponse<T> {
     pub total_pages: usize,
 }
 #[command]
-pub fn list_tagged_notes(
+pub async fn list_tagged_notes(
     db: State<'_, Mutex<NoteDatabase>>,
     page_size: usize,
-    page: usize
+    page: usize,
 ) -> Result<PaginatedResponse<Note>, String> {
     let db_ins = db.lock().expect("Failed to lock database");
 

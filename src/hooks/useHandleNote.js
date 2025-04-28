@@ -13,17 +13,20 @@ import {
 
 const noteList = ref([]);
 const weeklyNoteList = ref([]);
+const finished = ref(false);
+
+const lastId = computed(() => noteList.value.at(-1)?.id || null);
 
 async function handleCreateNote() {
     try {
         // 创建一定是空的
-        const notes = await invoke('create_note', {
+        const newNote = await invoke('create_note', {
             title: '',
             content: '',
         });
-        // 创建之后更新列表
-        handleGetTodayNotes();
-        console.log('创建笔记成功', notes);
+        // 创建之后 本地更新
+        noteList.value.unshift(newNote);
+        console.log('创建笔记成功', newNote);
     } catch (error) {
         console.log('创建笔记失败', error);
     }
@@ -31,12 +34,13 @@ async function handleCreateNote() {
 
 async function handleGetTodayNotes() {
     try {
-        const notes = await invoke("list_notes", {
-            page: 1,
+        const notes = await invoke("list_notes_by_id", {
+            lastId: lastId.value,
             pageSize: 10,
         });
         console.log('获取笔记成功', notes);
-        noteList.value = notes.data;
+        noteList.value = !lastId ? notes.data : noteList.value.concat(notes.data);
+        finished.value = notes.data.length < 10;
     } catch (error) {
         console.log('获取笔记失败', error);
     }
@@ -87,7 +91,11 @@ async function handleMarkNote(note) {
 async function handleDeleteNote(id) {
     try {
         const notes = await invoke('delete_note', {id});
-        handleGetTodayNotes();
+        // 本地删除 不再重新获取
+        const idx = noteList.value.findIndex(note => note.id === id);
+        if (idx > -1) {
+            noteList.value.splice(idx, 1);
+        }
         console.log('更新笔记成功', notes);
     } catch (error) {
         console.log('更新笔记成功', error);
@@ -98,6 +106,7 @@ export default function useHandleNote() {
     return {
         noteList,
         weeklyNoteList,
+        finished,
         handleCreateNote,
         handleGetTodayNotes,
         handleGetWeeklyNotes,

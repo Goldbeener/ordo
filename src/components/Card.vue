@@ -2,8 +2,8 @@
   <div class="w-full h-auto p-[20px] pb-[4px] rounded-xl bg-white">
     <Editor
         ref="targetElement"
-        :content="note.content"
         placeholder="记录日常的待办"
+        :content="note.content"
         @update="(content) => updateNote({ id: note.id, content })"
     />
     <div class="toolbar flex h-[36px] items-center justify-end">

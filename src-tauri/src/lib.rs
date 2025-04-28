@@ -1,19 +1,18 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 mod cmd_note_manage;
+mod cmd_schedule;
 mod cmd_screen_shot;
+mod cmd_toggle_collapse;
 mod cmd_toggle_layer;
 mod cmd_wallpaper;
 mod db;
+mod db_timer;
 mod generate_wallpaper;
 mod init_app;
 
-mod db_timer;
-
-mod cmd_schedule;
-mod cmd_toggle_collapse;
-
 use cmd_note_manage::{
-    create_note, delete_note, list_notes, list_notes_by_date, list_tagged_notes, update_note,
+    create_note, delete_note, get_notes_count, list_notes, list_notes_by_date, list_notes_by_id,
+    list_tagged_notes, update_note,
 };
 use cmd_schedule::{add_schedule, delete_schedule, get_schedules, init_timer_db};
 use cmd_screen_shot::{init_screenshot_manager, save_screenshot};
@@ -55,11 +54,13 @@ pub fn run() {
             toggle_always_on_top,
             expand_window,
             collapse_window,
+            get_notes_count,
             create_note,
             delete_note,
             list_notes,
             list_tagged_notes,
             list_notes_by_date,
+            list_notes_by_id,
             update_note,
             save_screenshot,
             gen_set_wallpaper,

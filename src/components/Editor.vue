@@ -56,7 +56,6 @@ const editor = useEditor({
   content: props.content || '',
   extensions: [
     StarterKit,
-    Paragraph,
     Highlight,
     Typography,
     Placeholder.configure({

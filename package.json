@@ -29,6 +29,8 @@
     "@tiptap/pm": "^2.11.5",
     "@tiptap/starter-kit": "^2.11.5",
     "@tiptap/vue-3": "^2.11.5",
+    "@vueuse/components": "^13.1.0",
+    "@vueuse/core": "^13.1.0",
     "@vueuse/motion": "^3.0.3",
     "date-fns": "^4.1.0",
     "html2canvas": "^1.4.1",

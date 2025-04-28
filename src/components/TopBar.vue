@@ -42,6 +42,7 @@ function handleSwitch(tabName) {
   .disabled {
     pointer-events: none;
     cursor: not-allowed;
+    opacity: 0.3;
   }
 }
 </style>

@@ -15,29 +15,28 @@
   </n-notification-provider>
 
   <!--  折叠图标 -->
-  <transition name="fade">
-    <div
-        v-show="showCollapseIcon"
-        class="toggle-wrapper w-5 h-28 bg-yellow-400 rounded-lg fixed -left-1 top-1/2 -translate-y-1/2 flex items-center"
-        @click="handleToggleCollapse">
-      <RiArrowRightDoubleFill v-if="!isCollapsed" size="24"/>
-      <RiArrowLeftDoubleFill v-else size="24"/>
-    </div>
-  </transition>
+  <div
+      v-show="showCollapseIcon"
+      class="toggle-wrapper w-4 h-28 bg-yellow-400 rounded-lg fixed left-0 top-1/2 -translate-y-1/2 flex items-center"
+      @click="handleToggleCollapse">
+    <RiArrowRightDoubleFill v-if="!isCollapsed" size="24"/>
+    <RiArrowLeftDoubleFill v-else size="24"/>
+  </div>
 
 </template>
 
 <script setup>
 import {invoke} from '@tauri-apps/api/core';
 import {useMotion} from '@vueuse/motion'
+import {RiArrowRightDoubleFill, RiArrowLeftDoubleFill} from '@remixicon/vue';
 
 
 import TopBar from './components/TopBar.vue';
 import Today from './components/Today.vue';
+// import StaredNotes from "./components/StaredNotes.vue";
 import Weekly from './components/Weekly.vue';
 import Mine from "./components/Mine.vue"
 
-import {RiArrowRightDoubleFill, RiArrowLeftDoubleFill} from '@remixicon/vue';
 
 import useHandleNote from './hooks/useHandleNote';
 
@@ -57,6 +56,10 @@ const {apply, stop} = useMotion(containerRef, {
     opacity: 0,
     x: 400, // 初始从右侧偏移
   },
+  enter: {
+    opacity: 1,
+    x: 0,
+  },
   visible: {
     opacity: 1,
     x: 0,
@@ -72,7 +75,7 @@ const {apply, stop} = useMotion(containerRef, {
 async function handleToggleCollapse() {
   showCollapseIcon.value = false;
   await nextTick();
-  invoke(isCollapsed.value ? 'expand_window' : 'collapse_window');
+  await invoke(isCollapsed.value ? 'expand_window' : 'collapse_window');
   isCollapsed.value = !isCollapsed.value;
 
   // 前置 否则apply会吞掉这个cb
@@ -89,7 +92,7 @@ async function handleToggleCollapse() {
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 ::-webkit-scrollbar {
   display: none;
 }
@@ -107,11 +110,13 @@ async function handleToggleCollapse() {
   transition: --n-color-start .3s var(--n-bezier), --n-color-end .3s var(--n-bezier);
 }
 
-.fade-enter-active {
-  transition: opacity 0.5s ease;
-}
+.toggle-wrapper {
+  overflow: hidden;
 
-.fade-enter-from {
-  opacity: 0;
+  & :deep(.remixicon) {
+    transform: scale(1.3);
+    transform-origin: center;
+  }
+
 }
 </style>

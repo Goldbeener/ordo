@@ -1,15 +1,15 @@
 <template>
-  <div class="container w-screen flex flex-col items-center py-[32px] px-[16px]">
+  <div v-bind="$attrs" class="container w-screen flex flex-col items-center py-[32px] px-[16px]">
     <div class="w-full rounded-lg p-5 flex items-center mb-6 bg-white">
       <div v-html="svg" class="mr-5" @click="generateAvatar()"></div>
       <div class="flex items-center flex-1">
         <div class="p-2 flex flex-col items-center mr-4">
-          <div>66</div>
-          <div>笔记数</div>
+          <n-number-animation :from="0" :to="totalNotesCount"/>
+          <div>笔记</div>
         </div>
         <div class="p-2 flex flex-col items-center">
-          <div>99</div>
-          <div>点子数</div>
+          <n-number-animation :from="0" :to="totalTaggedNotesCount"/>
+          <div>点子</div>
         </div>
       </div>
     </div>
@@ -42,6 +42,7 @@
 </template>
 
 <script setup>
+import {invoke} from '@tauri-apps/api/core';
 import {createAvatar} from '@dicebear/core'
 import {funEmoji} from '@dicebear/collection'
 import {RiTimerLine, RiSettings3Line, RiQuestionLine} from '@remixicon/vue'
@@ -51,9 +52,18 @@ import CreateSchedue from "./CreateSchedue.vue";
 const scheduleRef = ref(null)
 const svg = ref('')
 const showModal = ref(false);
+const totalNotesCount = ref(0);
+const totalTaggedNotesCount = ref(0);
 let seed = localStorage.getItem('avatar-seed')
 
 generateAvatar(seed);
+getNotesCount();
+
+async function getNotesCount() {
+  const data = await invoke('get_notes_count');
+  totalNotesCount.value = data[0];
+  totalTaggedNotesCount.value = data[1];
+}
 
 function generateAvatar(seed) {
   if (!seed) {
@@ -64,7 +74,7 @@ function generateAvatar(seed) {
   // 生成 SVG 头像
   svg.value = createAvatar(funEmoji, {
     seed,
-    size: 96,
+    size: 90,
     radius: 50
   }).toString()
 }
