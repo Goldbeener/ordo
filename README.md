@@ -7,9 +7,9 @@
 支持markdown语法，支持定时提醒、番茄时钟等。
 
 <figure class="half">
-    <img src="resource/img_2.png" width="358"  />
-    <img src="resource/img_1.png" width="358"  />
-    <img src="resource/img.png" width="358" />
+    <img src="https://github.com/Goldbeener/ordo/blob/main/resource/img_2.png" width="358"  />
+    <img src="https://github.com/Goldbeener/ordo/blob/main/resource/img_1.png" width="358"  />
+    <img src="https://github.com/Goldbeener/ordo/blob/main/resource/img.png" width="358" />
 </figure>
  
 
