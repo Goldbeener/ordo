@@ -17,7 +17,7 @@
       </button>
     </div>
   </bubble-menu>
-  <EditorContent :editor="editor"/>
+  <EditorContent ref="editorRef" :editor="editor"/>
 </template>
 
 <script setup>
@@ -46,8 +46,12 @@ const props = defineProps({
     default: 'Write something …'
   }
 });
+
+const editorRef = ref(null);
+
 const emit = defineEmits(['update']);
 defineExpose({
+  editorRef,
   getEditorText
 })
 

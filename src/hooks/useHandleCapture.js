@@ -1,5 +1,6 @@
-import { captureElementToDataUrl, captureElementToImage, setWallpaper } from '../utils/screenshotService.js'
-export default  function useHandleCapture() {
+import {captureElementToDataUrl, captureElementToImage, setWallpaper} from '../utils/screenshotService.js'
+
+export default function useHandleCapture() {
     const targetElement = useTemplateRef('targetElement');
     const isCapturing = ref(false);
     const captureStatus = ref(null);
@@ -9,10 +10,10 @@ export default  function useHandleCapture() {
 
         try {
             isCapturing.value = true;
-            captureStatus.value = { type: 'info', message: '正在处理截图...' };
-            console.log('??? 正在处理截图...');
+            captureStatus.value = {type: 'info', message: '正在处理截图...'};
+            console.log('??? 正在处理截图...', targetElement.value);
 
-            const result = await captureElementToImage(targetElement.value.$el, {
+            const result = await captureElementToImage(targetElement.value.editorRef.$el, {
                 filePrefix: 'wallpaper',
                 format: 'png',
                 quality: 0.95,
@@ -23,13 +24,13 @@ export default  function useHandleCapture() {
             if (result.success) {
                 console.log('???,截图已保存', result)
                 await setWallpaper(result.path);
-                captureStatus.value = { type: 'success', message: `截图已保存: ${result.fileName}` };
+                captureStatus.value = {type: 'success', message: `截图已保存: ${result.fileName}`};
             } else {
-                captureStatus.value = { type: 'error', message: `截图失败: ${result.error}` };
+                captureStatus.value = {type: 'error', message: `截图失败: ${result.error}`};
             }
         } catch (error) {
             console.error('截图过程出错:', error);
-            captureStatus.value = { type: 'error', message: `截图错误: ${error.message}` };
+            captureStatus.value = {type: 'error', message: `截图错误: ${error.message}`};
         } finally {
             isCapturing.value = false;
 
@@ -48,7 +49,7 @@ export default  function useHandleCapture() {
 
         try {
             isCapturing.value = true;
-            captureStatus.value = { type: 'info', message: '正在处理截图...' };
+            captureStatus.value = {type: 'info', message: '正在处理截图...'};
 
             const result = await captureElementToDataUrl(targetElement.value.$el, {
                 format: 'png',
@@ -57,13 +58,13 @@ export default  function useHandleCapture() {
             });
 
             if (result.success) {
-                captureStatus.value = { type: 'success', message: '截图数据已生成' };
+                captureStatus.value = {type: 'success', message: '截图数据已生成'};
             } else {
-                captureStatus.value = { type: 'error', message: `截图失败: ${result.error}` };
+                captureStatus.value = {type: 'error', message: `截图失败: ${result.error}`};
             }
         } catch (error) {
             console.error('截图过程出错:', error);
-            captureStatus.value = { type: 'error', message: `截图错误: ${error.message}` };
+            captureStatus.value = {type: 'error', message: `截图错误: ${error.message}`};
         } finally {
             isCapturing.value = false;
 
