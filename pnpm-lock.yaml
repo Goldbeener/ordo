@@ -24,7 +24,7 @@ importers:
         specifier: ^2
         version: 2.4.0
       '@tauri-apps/plugin-clipboard-manager':
-        specifier: ~2
+        specifier: ~2.2.2
         version: 2.2.2
       '@tauri-apps/plugin-notification':
         specifier: ~2

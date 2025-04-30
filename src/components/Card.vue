@@ -1,5 +1,8 @@
 <template>
-  <div class="w-full h-auto p-[20px] pb-[4px] rounded-xl bg-white">
+  <div
+    ref="noteCardRef"
+    class="w-full h-auto p-[20px] pb-[4px] rounded-xl bg-white overflow-hidden"
+  >
     <Editor
       ref="targetElement"
       placeholder="记录日常的待办"
@@ -18,6 +21,17 @@
             <RiStarLine v-else size="16px" />
           </template>
           收藏笔记
+        </n-tooltip>
+      </div>
+      <div
+        class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
+        @click="handleShareNote"
+      >
+        <n-tooltip trigger="hover">
+          <template #trigger>
+            <RiShare2Fill size="16px" />
+          </template>
+          分享卡片
         </n-tooltip>
       </div>
       <div
@@ -67,12 +81,14 @@ import {
   RiDeleteBin6Line,
   RiStarLine,
   RiStarFill,
+  RiShare2Fill,
 } from '@remixicon/vue';
-import { writeText } from '@tauri-apps/plugin-clipboard-manager';
+import { writeText, writeImage } from '@tauri-apps/plugin-clipboard-manager';
 
 import Editor from './Editor.vue';
 import useHandleNote from '../hooks/useHandleNote';
 import useHandleCapture from '../hooks/useHandleCapture.js';
+import { captureElementToDataUrl } from '../utils/screenshotService.js';
 
 const {
   handleUpdateNote,
@@ -87,6 +103,7 @@ const props = defineProps({
     type: Object,
   },
 });
+const noteCardRef = ref(null);
 
 const updateNote = debounce(handleUpdateNote, 1000);
 
@@ -95,6 +112,31 @@ async function handleCaptureScreenshot() {
   await captureToFile();
   notification.success({
     content: '设置成功！',
+    duration: 2000,
+  });
+}
+
+function dataUriToArrayBuffer(dataUri) {
+  // 去掉 Data URI 前缀，如 "data:image/png;base64,"
+  const base64 = dataUri.split(',')[1];
+  const binaryString = atob(base64); // 解码 Base64 为二进制字符串
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+
+  return bytes.buffer; // 返回 ArrayBuffer
+}
+
+async function handleShareNote() {
+  // 分享卡片
+  console.log('目标卡片', noteCardRef.value);
+  const imageData = await captureElementToDataUrl(noteCardRef.value);
+  await writeImage(dataUriToArrayBuffer(imageData.dataUrl));
+  notification.success({
+    content: '生成图片成功！',
     duration: 2000,
   });
 }
