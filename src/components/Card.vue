@@ -12,6 +12,7 @@
     <div class="toolbar flex h-[36px] items-center justify-end">
       <span class="text-sm mr-auto">{{ formatDate(note.create_time) }}</span>
       <div
+        data-html2canvas-ignore
         class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
         @click="handleCollectNote"
       >
@@ -24,6 +25,7 @@
         </n-tooltip>
       </div>
       <div
+        data-html2canvas-ignore
         class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
         @click="handleShareNote"
       >
@@ -35,6 +37,7 @@
         </n-tooltip>
       </div>
       <div
+        data-html2canvas-ignore
         class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
         @click="handleCopyNote"
       >
@@ -46,6 +49,7 @@
         </n-tooltip>
       </div>
       <div
+        data-html2canvas-ignore
         class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
         @click="handleCaptureScreenshot"
       >
@@ -57,6 +61,7 @@
         </n-tooltip>
       </div>
       <div
+        data-html2canvas-ignore
         class="flex justify-center items-center mr-2 rounded-md bg-transparent hover:bg-slate-300 icon-wrapper w-6 h-6"
         @click="handleDeleteNote"
       >
