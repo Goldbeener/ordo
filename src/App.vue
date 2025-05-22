@@ -3,7 +3,7 @@
     <div
       ref="containerRef"
       v-show="!isCollapsed"
-      class="h-[100vh] overflow-hidden flex flex-col"
+      class="h-[100vh] overflow-hidden flex flex-col rounded-lg bg-black/35"
     >
       <div
         data-tauri-drag-region
@@ -20,7 +20,7 @@
             @switch="(idx) => (currentIndex = idx)"
           />
         </header>
-        <component :is="currentComp" class="flex-auto"></component>
+        <component :is="currentComp" class="flex-auto pb-4"></component>
       </div>
     </div>
   </n-notification-provider>
@@ -108,12 +108,13 @@ async function handleToggleCollapse() {
 .gradient-text {
   --n-bezier: cubic-bezier(0.4, 0, 0.2, 1);
   --n-rotate: 252deg;
-  --n-color-start: rgba(240, 160, 32, 0.6);
-  --n-color-end: #f0a020;
+  --n-color-start: rgba(240, 233, 32, 0.6);
+  --n-color-end: #ecf020;
   -webkit-background-clip: text;
   background-clip: text;
   color: #0000;
   white-space: nowrap;
+  background-color: rgba(255, 255, 255, 0.8);
   background-image: linear-gradient(
     var(--n-rotate),
     var(--n-color-start) 0%,

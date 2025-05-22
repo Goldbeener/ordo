@@ -1,28 +1,41 @@
 <template>
-  <div v-bind="$attrs" class="container w-screen flex flex-col items-center py-[32px] px-[16px]">
+  <div
+    v-bind="$attrs"
+    class="container w-screen flex flex-col items-center py-[32px] px-[16px]"
+  >
     <div class="w-full rounded-lg p-5 flex items-center mb-6 bg-white">
-      <div v-html="svg" class="mr-5" @click="generateAvatar()"></div>
+      <n-tooltip trigger="hover" placement="right-start">
+        <template #trigger>
+          <div v-html="svg" class="mr-5" @click="generateAvatar()"></div>
+        </template>
+        点击切换你的心情
+      </n-tooltip>
       <div class="flex items-center flex-1">
         <div class="p-2 flex flex-col items-center mr-4">
-          <n-number-animation :from="0" :to="totalNotesCount"/>
+          <n-number-animation :from="0" :to="totalNotesCount" />
           <div>笔记</div>
         </div>
         <div class="p-2 flex flex-col items-center">
-          <n-number-animation :from="0" :to="totalTaggedNotesCount"/>
+          <n-number-animation :from="0" :to="totalTaggedNotesCount" />
           <div>点子</div>
         </div>
       </div>
     </div>
 
-    <n-collapse class="bg-white" default-expanded-names="1" accordion :trigger-areas="['main']">
+    <n-collapse
+      class="bg-white"
+      default-expanded-names="1"
+      accordion
+      :trigger-areas="['main']"
+    >
       <n-collapse-item title="定时任务" name="1">
         <template #header-extra>
           <div class="cursor-pointer" @click="showModal = true">
-            <RiSettings3Line/>
+            <RiSettings3Line />
           </div>
         </template>
         <template #arrow>
-          <RiTimerLine/>
+          <RiTimerLine />
         </template>
         <div>
           <Schedule ref="scheduleRef"></Schedule>
@@ -30,31 +43,31 @@
       </n-collapse-item>
       <n-collapse-item title="番茄时钟" name="2">
         <template #arrow>
-          <RiQuestionLine/>
+          <RiTimerFlashLine />
         </template>
         <div>开启番茄时钟</div>
       </n-collapse-item>
     </n-collapse>
   </div>
   <n-modal v-model:show="showModal">
-    <CreateSchedue @finished="handleAddFinished"/>
+    <CreateSchedue @finished="handleAddFinished" />
   </n-modal>
 </template>
 
 <script setup>
-import {invoke} from '@tauri-apps/api/core';
-import {createAvatar} from '@dicebear/core'
-import {funEmoji} from '@dicebear/collection'
-import {RiTimerLine, RiSettings3Line, RiQuestionLine} from '@remixicon/vue'
-import Schedule from './Schedule.vue'
-import CreateSchedue from "./CreateSchedue.vue";
+import { invoke } from '@tauri-apps/api/core';
+import { createAvatar } from '@dicebear/core';
+import { funEmoji } from '@dicebear/collection';
+import { RiTimerLine, RiSettings3Line, RiTimerFlashLine } from '@remixicon/vue';
+import Schedule from './Schedule.vue';
+import CreateSchedue from './CreateSchedue.vue';
 
-const scheduleRef = ref(null)
-const svg = ref('')
+const scheduleRef = ref(null);
+const svg = ref('');
 const showModal = ref(false);
 const totalNotesCount = ref(0);
 const totalTaggedNotesCount = ref(0);
-let seed = localStorage.getItem('avatar-seed')
+let seed = localStorage.getItem('avatar-seed');
 
 generateAvatar(seed);
 getNotesCount();
@@ -67,23 +80,23 @@ async function getNotesCount() {
 
 function generateAvatar(seed) {
   if (!seed) {
-    seed = Math.random().toString(36).substring(2, 10)
-    localStorage.setItem('avatar-seed', seed)
-  }// 可以换其他风格
+    seed = Math.random().toString(36).substring(2, 10);
+    localStorage.setItem('avatar-seed', seed);
+  } // 可以换其他风格
 
   // 生成 SVG 头像
   svg.value = createAvatar(funEmoji, {
     seed,
     size: 90,
-    radius: 50
-  }).toString()
+    radius: 50,
+  }).toString();
 }
 
 function handleAddFinished(needRefresh) {
-  console.log('是否需要刷新', needRefresh, scheduleRef.value)
+  console.log('是否需要刷新', needRefresh, scheduleRef.value);
   showModal.value = false;
   if (needRefresh) {
-    scheduleRef.value?.loadSchedule()
+    scheduleRef.value?.loadSchedule();
   }
 }
 </script>
@@ -119,7 +132,7 @@ function handleAddFinished(needRefresh) {
     }
 
     .n-form-item {
-      width: 75%
+      width: 75%;
     }
   }
 }

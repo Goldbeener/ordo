@@ -4,7 +4,11 @@
       <n-timeline-item v-for="(dayNotes, key) in timeLineData" :key="key">
         <n-collapse :default-expanded-names="['1']">
           <n-collapse-item :title="key" name="1">
-            <Editor v-for="note in dayNotes" :content="note.content" :editable="false"/>
+            <Editor
+              v-for="note in dayNotes"
+              :content="note.content"
+              :editable="false"
+            />
           </n-collapse-item>
         </n-collapse>
       </n-timeline-item>
@@ -13,44 +17,50 @@
 </template>
 
 <script setup>
-import {parseISO, getDay, format} from 'date-fns'
+import { parseISO, getDay, format } from 'date-fns';
 
-import Editor from "./Editor.vue";
+import Editor from './Editor.vue';
 
-import useHandleNote from "../hooks/useHandleNote.js";
+import useHandleNote from '../hooks/useHandleNote.js';
 
-const {weeklyNoteList, handleGetWeeklyNotes} = useHandleNote();
-const weekDays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
+const { weeklyNoteList, handleGetWeeklyNotes } = useHandleNote();
+const weekDays = [
+  '星期日',
+  '星期一',
+  '星期二',
+  '星期三',
+  '星期四',
+  '星期五',
+  '星期六',
+];
 
 // 格式化数据 按天聚合
 const timeLineData = computed(() => {
   const result = {};
   weeklyNoteList.value
-      .filter(note => note.content.trim())
-      .forEach(note => {
-        const weekday = weekDays[getDay(parseISO(note.create_time))];
-        if (!result[weekday]) {
-          result[weekday] = [note]
-        } else {
-          result[weekday].push(note)
-        }
-      })
-  return result
-})
+    .filter((note) => note.content.trim())
+    .forEach((note) => {
+      const weekday = weekDays[getDay(parseISO(note.create_time))];
+      if (!result[weekday]) {
+        result[weekday] = [note];
+      } else {
+        result[weekday].push(note);
+      }
+    });
+  return result;
+});
 
 handleGetWeeklyNotes().then(() => {
-  console.log('本周数据', weeklyNoteList.value)
-})
+  console.log('本周数据', weeklyNoteList.value);
+});
 
 function formatTime(dateString) {
-  return format(parseISO(dateString), 'HH:mm')
+  return format(parseISO(dateString), 'HH:mm');
 }
-
 </script>
 
 <style scoped lang="less">
 :deep(.n-timeline) {
-
   &-item {
     padding-top: 0px !important;
   }
@@ -70,10 +80,10 @@ function formatTime(dateString) {
   }
 
   &-item:nth-child(1) {
-    background: #F2F5F9;
+    background: #f2f5f9;
 
     .n-timeline-item-timeline__circle {
-      border-color: #1F2D3D !important;
+      border-color: #1f2d3d !important;
       margin-top: 18px !important;
     }
   }
@@ -81,74 +91,74 @@ function formatTime(dateString) {
   /* 周一 */
 
   &-item:nth-child(2) {
-    background: #E3EDF7;
+    background: #e3edf7;
 
     .n-timeline-item-timeline__circle {
-      border-color: #1A293B !important;
+      border-color: #1a293b !important;
     }
   }
 
   /* 周二 */
 
   &-item:nth-child(3) {
-    background: #E1F3F1;
+    background: #e1f3f1;
 
     .n-timeline-item-timeline__circle {
-      border-color: #1E3A36 !important;
+      border-color: #1e3a36 !important;
     }
   }
 
   /* 周三 */
 
   &-item:nth-child(4) {
-    background: #E9F6E5;
+    background: #e9f6e5;
 
     .n-timeline-item-timeline__circle {
-      border-color: #2C3E22 !important;
+      border-color: #2c3e22 !important;
     }
   }
 
   /* 周四 */
 
   &-item:nth-child(5) {
-    background: #FCF7DC;
+    background: #fcf7dc;
 
     .n-timeline-item-timeline__circle {
-      border-color: #5A4E1E !important;
+      border-color: #5a4e1e !important;
     }
   }
 
   /* 周五 */
 
   &-item:nth-child(6) {
-    background: #FDEEDC;
+    background: #fdeedc;
 
     .n-timeline-item-timeline__circle {
-      border-color: #5C3A1E !important;
+      border-color: #5c3a1e !important;
     }
   }
 
   /* 周六 */
 
   &-item:nth-child(7) {
-    background: #FCE8E9;
+    background: #fce8e9;
 
     .n-timeline-item-timeline__circle {
-      border-color: #5A1F2D !important;
+      border-color: #5a1f2d !important;
     }
   }
-
-  /* 周日 */
 
   .n-timeline-item {
     padding-top: 12px;
 
-    &-timeline__line {
-      left: 12px !important;
-
-      &:first-of-type {
+    &:first-of-type {
+      .n-timeline-item-timeline__line {
         top: 34px !important;
       }
+    }
+
+    &-timeline__line {
+      left: 12px !important;
     }
 
     &-timeline__circle {

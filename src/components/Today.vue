@@ -45,4 +45,9 @@ function canLoadMore() {
 .filter-btn {
   width: 120px !important;
 }
+.card-wrapper {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
 </style>
